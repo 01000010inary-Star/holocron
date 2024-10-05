@@ -37,8 +37,11 @@
         "@fontsource/lato": "^5.1.0",
         "@radix-ui/react-alert-dialog": "^1.1.2",
         "@radix-ui/react-checkbox": "^1.1.2",
+        "@radix-ui/react-dialog": "^1.1.2",
+        "@radix-ui/react-label": "^2.1.0",
         "@radix-ui/react-slider": "^1.2.1",
         "@radix-ui/react-slot": "^1.1.0",
+        "@react-three/fiber": "^8.17.9",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.1",
         "lucide-react": "^0.447.0",
@@ -46,7 +49,6 @@
         "react-dom": "^18.3.1",
         "tailwind-merge": "^2.5.3",
         "tailwindcss-animate": "^1.0.7",
-        "@react-three/fiber": "^8.17.9",
         "three": "^0.169.0"
     }
 }
