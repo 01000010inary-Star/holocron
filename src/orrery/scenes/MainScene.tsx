@@ -2,6 +2,7 @@ import { OrbitControls } from "@react-three/drei";
 import { useState, useContext, useEffect } from "react";
 import { DatabaseContext } from "@/contexts/DatabaseContext";
 import PlanetType from "@/types/PlanetType";
+import { Planet } from "../Planet";
 
 export function MainScene() {
     const db = useContext(DatabaseContext);
@@ -38,6 +39,7 @@ export function MainScene() {
         <>
             <ambientLight intensity={2} />
             <pointLight position={[10, 10, 10]} />
+            {planets.map(planet => <Planet key={planet.id} keplerian_elements={planet} time={0} />)}
             <OrbitControls />
         </>
     );
