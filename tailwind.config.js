@@ -11,6 +11,7 @@ export default {
             },
             backgroundImage: {
                 card: "var(--card)",
+                sun: "radial-gradient(circle, rgba(253,228,0,1) 0%, rgba(255,255,255,0) 80%)"
             },
             fontSize: {
                 lg: "var(--font-size-lg)",

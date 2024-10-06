@@ -1,7 +1,7 @@
+import { useContext, useEffect, useState } from "react";
 import { OrbitalPropagatorContext } from "@/contexts/OrbitalPropagatorContext";
 import PlanetType from "@/types/PlanetType";
-import { Sphere } from "@react-three/drei";
-import { useContext, useEffect, useState } from "react";
+import { Html } from "@react-three/drei";
 import { Vector3 } from "three";
 
 interface PlanetProps {
@@ -15,6 +15,8 @@ export const Planet: React.FC<PlanetProps> = ({ keplerian_elements, time }) => {
     const [position, setPosition] = useState<Vector3>(new Vector3(0, 0, 0));
 
     useEffect(() => {
+        if (!orbitalProp?.ready) return;
+
         // Call wasm to set the position
         if (orbitalProp) {
             const inputBody = {
@@ -68,11 +70,18 @@ export const Planet: React.FC<PlanetProps> = ({ keplerian_elements, time }) => {
                 }
             }
         }
-    }, [time]);
+    }, [time, orbitalProp?.ready]);
 
-    return (
-        <Sphere args={[0.05, 32, 32]} position={position}>
-            <meshStandardMaterial attach="material" color="red" />
-        </Sphere>
+    return orbitalProp?.ready ? (
+        <Html position={position} className="flex gap-2 group cursor-pointer">
+            <div className="w-5 h-5 border group-hover:border-white/90 border-white rounded-full" />
+            <span className="text-white group-hover:text-white/90">
+                {keplerian_elements.name}
+            </span>
+        </Html>
+    ) : (
+        <Html position={[0, 0, 0]} className="flex gap-2 group cursor-pointer bg-background">
+            <h1>Loading...</h1>
+        </Html>
     );
 };

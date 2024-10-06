@@ -1,4 +1,4 @@
-import { OrbitControls } from "@react-three/drei";
+import { Html, OrbitControls } from "@react-three/drei";
 import { useState, useContext, useEffect } from "react";
 import { DatabaseContext } from "@/contexts/DatabaseContext";
 import PlanetType from "@/types/PlanetType";
@@ -40,7 +40,15 @@ export function MainScene() {
     return (
         <>
             <ambientLight intensity={2} />
-            <pointLight position={[10, 10, 10]} />
+            <Html
+                position={[0, 0, 0]}
+                className="flex gap-2 group cursor-pointer"
+            >
+                <div className="w-5 h-5 border group-hover:border-white/90 border-yellow-200/50 bg-sun rounded-full" />
+                <span className="text-white group-hover:text-white/90">
+                    Sun
+                </span>
+            </Html>
             {planets.map((planet) => (
                 <Planet key={planet.id} keplerian_elements={planet} time={0} />
             ))}
