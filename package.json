@@ -6,8 +6,8 @@
     "license": "ISC",
     "type": "module",
     "scripts": {
-        "deps": "(cd data && ./createDatabase.sh)",
-        "dev": "npm run deps && ./data/compileOrbitalProp.sh && vite",
+        "deps": "(cd data && ./createDatabase.sh) && (cd orbital_propagator && ./compileOrbitalProp.sh)",
+        "dev": "npm run deps && vite",
         "build": "npm run deps && tsc -b && vite build",
         "preview": "vite preview",
         "lint": "eslint .",
