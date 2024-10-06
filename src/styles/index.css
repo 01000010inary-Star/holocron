@@ -42,19 +42,28 @@
   }
 }
 @layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    font-family: 'Lato', sans-serif;
-    @apply bg-background text-foreground;
-  }
+    * {
+        @apply border-border;
+    }
+    body {
+        font-family: "Lato", sans-serif;
+        @apply bg-background text-foreground;
+    }
 
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-bold text-foreground;
-  }
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-bold text-foreground;
+    }
 
-  p, span, li, strong, a {
-    @apply text-foreground;
-  }
+    p,
+    span,
+    li,
+    strong,
+    a {
+        @apply text-foreground;
+    }
 }
