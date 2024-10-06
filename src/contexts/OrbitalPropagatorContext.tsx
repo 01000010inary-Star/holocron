@@ -1,8 +1,12 @@
 import React, { useEffect, useState, createContext } from "react";
 
 interface OrbitalPropagatorContextType {
-    get_coordinates: ((input: string) => string) | undefined;
-    get_orbit_paths: ((input: string) => string) | undefined;
+    get_coordinates:
+        | ((input: string, is_planet: boolean) => string)
+        | undefined;
+    get_orbit_paths:
+        | ((input: string, is_planet: boolean) => string)
+        | undefined;
 }
 
 const OrbitalPropagatorContext = createContext<
