@@ -9,12 +9,26 @@ export default {
                 md: "var(--radius-md)",
                 sm: "var(--radius-sm)",
             },
+            backgroundImage: {
+                card: 'var(--card)',
+            },
+            fontSize: {
+                lg: 'var(--font-size-lg)',
+                md: 'var(--font-size-md)',
+                sm: 'var(--font-size-sm)',
+                xs: 'var(--font-size-xs)',
+                xl: 'var(--font-size-xl)',
+            },
             colors: {
                 background: "hsl(var(--background))",
                 foreground: "hsl(var(--foreground))",
                 card: {
+<<<<<<< HEAD
+                    foreground: 'hsl(var(--card-foreground))',
+=======
                     DEFAULT: "var(--card)",
                     foreground: "hsl(var(--card-foreground))",
+>>>>>>> 0cde3b794b5b52af34fdc5a006a166c4b74b060e
                 },
                 popover: {
                     DEFAULT: "hsl(var(--popover))",
