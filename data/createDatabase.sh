@@ -1,3 +1,5 @@
+#!/bin/bash
+
 if [ -e "../public/data/holocron.db" ]
 then
     rm "../public/data/holocron.db"

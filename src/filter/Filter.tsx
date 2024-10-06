@@ -145,7 +145,7 @@ const Filter: React.FC = () => {
                                             onCheckedChange={(checked) =>
                                                 handleCheckboxChange(
                                                     item.id,
-                                                    checked
+                                                    Boolean(checked)
                                                 )
                                             } // Update state
                                         />
