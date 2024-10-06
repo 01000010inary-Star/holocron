@@ -4,7 +4,7 @@ use wasm_bindgen::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::{from_str, to_string, Value};
 use std::f64::consts::{E, PI};
-use crate::objects::*;
+use crate::{objects::*, util::modify_data_if_planet};
 
 pub fn get_sequence(len: u32) -> Vec<f64> {
     // vec of evenly spaced floats between -pi/pi, length = increment
@@ -17,6 +17,7 @@ pub fn get_sequence(len: u32) -> Vec<f64> {
     seq
 }
 
+
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Orbit {
     id: u32,
@@ -27,9 +28,11 @@ pub struct Orbit {
 
 impl Orbit {
     /// Generate a new flat ellipse from input body data (z-cords all 0)
-    pub fn new_flat(val: &InputBody, num_points: Option<u32>) -> Self {
-        let a = val.semi_major_axis;
-        let e = val.eccentricity;
+    pub fn new_flat(val: &InputBody, is_planet: bool, num_points: Option<u32>) -> Self {
+
+        let updated_terms = modify_data_if_planet(val, is_planet);
+        let a = updated_terms.semi_major_axis;
+        let e = val.eccentricity_rad;
 
         // semi-minor axis
         let semi_minor = a * (1.0 - e.powi(2)).sqrt();
@@ -56,18 +59,19 @@ impl Orbit {
         }
     }
 
-
     /// Rotate a flat ellipsis into 3D space
-    pub fn rotate_3D(&mut self, val: &InputBody) {
+    pub fn rotate_3D(&mut self, val: &InputBody, is_planet: bool) {
 
         let num_points = self.x_cords.len();
 
+        let updated_terms = modify_data_if_planet(val, is_planet);
+
         // Pitch - rotating around y-axis w bodies inclination
-        let pitch = val.inclination.to_radians();
+        let pitch = val.inclination_deg.to_radians();
         // Yaw - rotating about z axis w bodies longitude asc node
-        let yaw = val.longitude_asc_node.to_radians();
+        let yaw = val.longitude_asc_node_deg.to_radians();
         // Roll - rotation about x axis w arg_perihelion
-        let roll = val.arg_perihelion.to_radians();
+        let roll = updated_terms.arg_perihelion.to_radians();
 
         for i in 0..num_points {
             let mut x = self.x_cords[i];

@@ -4,7 +4,7 @@ use wasm_bindgen::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::{from_str, to_string, Value};
 use std::f64::consts::{E, PI};
-
+use crate::util::*;
 
 // ======== Output Body ========
 // Data returned after calculating
@@ -42,43 +42,63 @@ impl OutputBody {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct InputBody {
     pub id: u32,
+    pub name: String,
     /// a
-    pub semi_major_axis: f64,
+    pub semi_major_axis_au: f64,
+    pub semi_major_axis_au_century: f64,
     /// e
-    pub eccentricity: f64,
+    pub eccentricity_rad: f64,
+    pub eccentricity_rad_century: f64,
     /// i
-    pub inclination: f64,
+    pub inclination_deg: f64,
+    pub inclination_deg_century: f64,
     /// om
-    pub longitude_asc_node: f64,
+    pub longitude_asc_node_deg: f64,
+    pub longitude_asc_node_deg_century: f64,
     /// w
+    pub longitude_perihelion_deg: f64,
+    pub longitude_perihelion_deg_century: f64,
+
+    pub mean_longitude_deg: f64,
+    pub mean_longitude_deg_century: f64,
+
+    pub julian_ephemeris_date: f64,
+    pub centuries_past_j2000: f64,
+
     pub arg_perihelion: f64,
     pub mean_anomaly: f64,
-    pub centuries_past_j2000: f64,
 }
 
 impl InputBody {
-    pub fn into_has_cords(&self) -> OutputBody {
+    pub fn into_has_cords(&self, is_planet: bool) -> OutputBody {
         let mut out = OutputBody::default_with_id(self.id);
-        get_cords(self, &mut out);
+        get_cords(self, is_planet, &mut out);
         out
     }
 }
 
-pub fn get_cords(val: &InputBody, out: &mut OutputBody) -> () {
+pub fn get_cords(val: &InputBody, is_planet: bool, out: &mut OutputBody) -> () {
 
-    // AU
-    let a = val.semi_major_axis;
-    let e = val.eccentricity;
+    let updated_terms = modify_data_if_planet(val, is_planet);
+
+    // Semi major axis
+    let mut a = updated_terms.semi_major_axis;
+    // Mean anomaly
+    let mut m = updated_terms.mean_anomaly;
+    // arg perihelion
+    let mut w = updated_terms.arg_perihelion;
+
+    let e = val.eccentricity_rad;
     let e_deg = 180.0_f64 / PI * e;
     // Degrees
-    let I = val.inclination.to_radians();
+    let I = val.inclination_deg.to_radians();
 
     // Degrees
-    let mut w = val.arg_perihelion;
-    let U = val.longitude_asc_node.to_radians();
+    let U = val.longitude_asc_node_deg.to_radians();
 
     // 3. Normalize mean anomaly into -180deg <= M <= 180deg
-    let mut m = val.mean_anomaly % 360.0;
+    m = m % 360.0;
+    // let mut m = val.mean_anomaly % 360.0;
     if m > 180.0 {
         m = m - 360.0;
     } else if m < -180.0 {
