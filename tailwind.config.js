@@ -10,20 +10,20 @@ export default {
                 sm: "var(--radius-sm)",
             },
             backgroundImage: {
-                card: 'var(--card)',
+                card: "var(--card)",
             },
             fontSize: {
-                lg: 'var(--font-size-lg)',
-                md: 'var(--font-size-md)',
-                sm: 'var(--font-size-sm)',
-                xs: 'var(--font-size-xs)',
-                xl: 'var(--font-size-xl)',
+                lg: "var(--font-size-lg)",
+                md: "var(--font-size-md)",
+                sm: "var(--font-size-sm)",
+                xs: "var(--font-size-xs)",
+                xl: "var(--font-size-xl)",
             },
             colors: {
                 background: "hsl(var(--background))",
                 foreground: "hsl(var(--foreground))",
                 card: {
-                    foreground: 'hsl(var(--card-foreground))',
+                    foreground: "hsl(var(--card-foreground))",
                 },
                 popover: {
                     DEFAULT: "hsl(var(--popover))",

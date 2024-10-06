@@ -1,4 +1,4 @@
-export function CuteRocket(props: React.ComponentProps<'svg'>) {
+export function CuteRocket(props: React.ComponentProps<"svg">) {
     return (
         <svg
             width={24}
