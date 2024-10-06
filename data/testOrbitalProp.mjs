@@ -22,13 +22,28 @@ import('../orbital_propagator/pkg/orbital_propagator.js').then((wasm) => {
         }
     ]);
 
+
     try {
         const result = wasm.get_coordinates(input);
-        console.log("Result from WASM:", result);
+        console.log("Result from WASM `get_coordinates()`");
+        console.log(result);
     } catch (e) {
-        console.error("Error calling the WASM function:", e);
+        console.error("Error calling WASM fn `get_coordinates`()");
+        console.error(e);
         process.exit(1);
     }
+
+
+    try {
+        const res = wasm.get_orbit_paths(input);
+        console.log("Result from WASM `get_orbit_paths()`");
+        console.log(res);
+    } catch (e) {
+        console.error("Error calling WASM fn `get_orbit_paths()`");
+        console.error(e);
+        process.exit(1);
+    }
+
 }).catch((e) => {
     console.error("Error loading the WASM module:", e);
     process.exit(1);
