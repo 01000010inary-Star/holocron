@@ -1,12 +1,16 @@
 import React, { useEffect, useState, createContext } from "react";
 
-interface OrbitalPropagatorContextType {
+interface Wasm {
     get_coordinates:
         | ((input: string, is_planet: boolean) => string)
         | undefined;
     get_orbit_paths:
         | ((input: string, is_planet: boolean) => string)
         | undefined;
+}
+
+interface OrbitalPropagatorContextType extends Wasm {
+    ready: boolean;
 }
 
 const OrbitalPropagatorContext = createContext<
@@ -18,14 +22,15 @@ interface ProviderProps {
 }
 
 const OrbitalPropagatorProvider: React.FC<ProviderProps> = ({ children }) => {
-    const [wasm, setWasm] = useState<OrbitalPropagatorContextType | null>(null);
-
-    async function fetchWasm() {
-        const theWasm = await import("../wasm/orbital_propagator.js");
-        setWasm(theWasm);
-    }
+    const [wasm, setWasm] = useState<Wasm | null>(null);
+    const [ready, setReady] = useState(false);
 
     useEffect(() => {
+        async function fetchWasm() {
+            const theWasm = await import("../wasm/orbital_propagator.js");
+            setWasm(theWasm);
+            setReady(true);
+        }
         fetchWasm();
     }, []);
 
@@ -34,6 +39,7 @@ const OrbitalPropagatorProvider: React.FC<ProviderProps> = ({ children }) => {
             value={{
                 get_coordinates: wasm?.get_coordinates,
                 get_orbit_paths: wasm?.get_orbit_paths,
+                ready,
             }}
         >
             {children}
