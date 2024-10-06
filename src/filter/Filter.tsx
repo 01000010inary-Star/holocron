@@ -1,40 +1,85 @@
-import { useState } from "react";
+import {useContext, useEffect, useState} from "react";
 import { AlertDialog, Button, Checkbox, Slider, Label } from "@/components/ui";
-
-// Values for Checkboxes in the filter pane
-const items = [
-    { id: "c", label: "C-type (Carbonaceous)" },
-    { id: "s", label: "S-type (Silicaceous or Stony)" },
-    { id: "m", label: "M-type (Metallic)" },
-    { id: "p", label: "P-type (Primitive)" },
-    { id: "d", label: "D-type (Organic Rich)" },
-    { id: "q", label: "Q-type (Basaltic)" },
-    { id: "r", label: "R-type (Rare, Silicaceous)" },
-    { id: "v", label: "V-type (Vestoids)" },
-    { id: "e", label: "E-type (Enstatite-rich)" },
-    { id: "b", label: "B-type (B-type Carbonaceous)" },
-] as const;
+import {DatabaseContext} from "@/contexts/DatabaseContext.tsx";
+import {Input} from "@/components/ui/input.tsx";
 
 const Filter: React.FC = () => {
-    // State to track slider values
-    const [value, setValue] = useState<[number, number]>([4000000, 12000000]);
-    const [profit, setProfit] = useState<[number, number]>([2000000, 8000000]);
-    const [mass, setMass] = useState<[number, number]>([1, 15]);
+    const [primaryDesignation, setPrimaryDesignation] = useState<string>("");
+    const [semiMajorAxis, setSemiMajorAxis] = useState<[number, number]>([0.0, 360.0]);
+    const [eccentricity, setEccentricity] = useState<[number, number]>([0.0, 1.0]);
+    const [inclination, setInclination] = useState<[number, number]>([0.0, 180.0]);
 
-    // State to track selected checkboxes (composition types)
-    const [selectedCompositions, setSelectedCompositions] = useState<string[]>(
-        []
-    );
+    // Use Context to access db and filteredDb
+    const { db, filteredDb, updateFilteredDb } = useContext(DatabaseContext);
+    const [smallBody, setSmallBody] = useState<>([]);
 
-    // Handle checkbox change
-    const handleCheckboxChange = (id: string, checked: boolean) => {
-        if (checked) {
-            setSelectedCompositions([...selectedCompositions, id]);
-        } else {
-            setSelectedCompositions(
-                selectedCompositions.filter((item) => item !== id)
+    useEffect(() => {
+        const res = db?.exec("select * from small_body;");
+        if (res && res.length > 0) {
+            const resArr = res[0].values;
+            const newSmallBody = resArr.map((body) => {
+                return {
+                    id: body[0] as number,
+                    primary_designation: body[1] as string,
+                    semi_major_axis: body[2] as number,
+                    eccentricity: body[3] as number,
+                    inclination: body[4] as number,
+                    mean_anomaly: body[7] as number,
+                    period: body[8] as number,
+                    orbit_class: body[11] as string,
+                    date_first_obs: body[12] as Date,
+                    date_last_obs: body[13] as Date,
+                };
+            });
+            console.log("Updated Filter.tsx DB");
+            setSmallBody(newSmallBody);
+        }
+    }, [db]);
+
+    // Handle the filter logic
+    const applyFilters = () => {
+        // Start with the full data
+        let filtered = smallBody;
+        console.log("Current Filter Values:");
+        console.log("Primary Designation:", primaryDesignation);
+        console.log("Semi-Major Axis:", semiMajorAxis);
+        console.log("Eccentricity:", eccentricity);
+        console.log("Inclination:", inclination);
+
+        // Apply filters only if values are provided
+        if (primaryDesignation) {
+            filtered = filtered.filter((item) =>
+                item.primary_designation.toLowerCase().includes(primaryDesignation.toLowerCase())
             );
         }
+        if (semiMajorAxis !== "") {
+            filtered = filtered.filter(
+                (item) =>
+                    item.semi_major_axis >= Number(semiMajorAxis[0]) &&
+                    item.semi_major_axis <= Number(semiMajorAxis[1])
+            );
+        }
+        if (eccentricity !== "") {
+            filtered = filtered.filter((item) => {
+                const eccentricityValue = parseFloat(item.eccentricity.toFixed(6)); // Round to avoid floating-point errors
+                return (
+                    eccentricityValue >= eccentricity[0] &&
+                    eccentricityValue <= eccentricity[1]
+                );
+            });
+        }
+        if (inclination !== "") {
+            filtered = filtered.filter((item) => {
+                const inclinationValue = parseFloat(item.inclination.toFixed(6)); // Round to avoid floating-point errors
+                return (
+                    inclinationValue >= inclination[0] &&
+                    inclinationValue <= inclination[1]
+                );
+            });
+        }
+
+        // Update the filteredDb in the context
+        updateFilteredDb(filtered);
     };
 
     return (
@@ -49,125 +94,106 @@ const Filter: React.FC = () => {
                         <AlertDialog.Description></AlertDialog.Description>
                     </AlertDialog.Header>
                     <div className="grid gap-4 py-4">
-                        {/* Value Slider */}
+                        {/* Primary Designation Search Bar */}
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="value" className="text-right">
-                                Value
+                                Primary Designation
+                            </Label>
+                            <div className="col-span-3 relative">
+                                <Input
+                                    type="text"
+                                    value={primaryDesignation}
+                                    onChange={(e) =>
+                                        setPrimaryDesignation(e.target.value)
+                                    }
+                                    placeholder="Search"
+                                />
+                            </div>
+                        </div>
+                        {/* Semi Major Axis Slider */}
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="name" className="text-right">
+                                Semi-Major Axis
                             </Label>
                             <div className="col-span-3 relative">
                                 {/* Display Min and Max values */}
                                 <div className="absolute top-0 left-0 text-sm">
-                                    {`Min: ${value[0]}`}
+                                    {`Min: ${semiMajorAxis[0]}`}
                                 </div>
                                 <div className="absolute top-0 right-0 text-sm">
-                                    {`Max: ${value[1]}`}
+                                    {`Max: ${semiMajorAxis[1]}`}
                                 </div>
                                 <Slider
-                                    id="value"
-                                    value={value}
-                                    max={8000000}
-                                    step={500000}
+                                    id="semi-major-axis"
+                                    value={semiMajorAxis}
+                                    max={360.0}
+                                    step={1}
                                     minStepsBetweenThumbs={2}
                                     className="col-span-3 mt-6"
                                     onValueChange={(val) =>
-                                        setValue(val as [number, number])
+                                        setSemiMajorAxis(
+                                            val as [number, number]
+                                        )
                                     }
                                 />
                             </div>
                         </div>
-                        {/* Profit Slider */}
+                        {/* Eccentricity Slider */}
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="name" className="text-right">
-                                Profit
+                                Eccentricity
                             </Label>
                             <div className="col-span-3 relative">
                                 {/* Display Min and Max values */}
                                 <div className="absolute top-0 left-0 text-sm">
-                                    {`Min: ${profit[0]}`}
+                                    {`Min: ${eccentricity[0]}`}
                                 </div>
                                 <div className="absolute top-0 right-0 text-sm">
-                                    {`Max: ${profit[1]}`}
+                                    {`Max: ${eccentricity[1]}`}
                                 </div>
                                 <Slider
-                                    id="profit"
-                                    value={profit}
-                                    max={8000000}
-                                    step={500000}
-                                    minStepsBetweenThumbs={2}
+                                    id="eccentricity"
+                                    value={eccentricity}
+                                    max={1.0}
+                                    step={0.1}
+                                    minStepsBetweenThumbs={1}
                                     className="col-span-3 mt-6"
                                     onValueChange={(val) =>
-                                        setProfit(val as [number, number])
+                                        setEccentricity(val as [number, number])
                                     }
                                 />
                             </div>
                         </div>
-                        {/* Mass Slider */}
+                        {/* Inclination Slider */}
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="name" className="text-right">
-                                Mass
+                                Inclination
                             </Label>
                             <div className="col-span-3 relative">
                                 {/* Display Min and Max values */}
                                 <div className="absolute top-0 left-0 text-sm">
-                                    {`Min: ${mass[0]}EM`}
+                                    {`Min: ${inclination[0]}`}
                                 </div>
                                 <div className="absolute top-0 right-0 text-sm">
-                                    {`Max: ${mass[1]}EM`}
+                                    {`Max: ${inclination[1]}`}
                                 </div>
                                 <Slider
-                                    id="mass"
-                                    value={mass}
-                                    max={50}
+                                    id="inclination"
+                                    value={inclination}
+                                    max={180}
                                     step={1}
                                     minStepsBetweenThumbs={1}
                                     className="col-span-3 mt-6"
                                     onValueChange={(val) =>
-                                        setMass(val as [number, number])
+                                        setInclination(val as [number, number])
                                     }
                                 />
-                            </div>
-                        </div>
-                        {/* Composition Checkboxes */}
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="composition" className="text-right">
-                                Composition
-                            </Label>
-                            <div className="col-span-3 grid grid-cols-1 gap-2">
-                                {items.map((item) => (
-                                    <div
-                                        key={item.id}
-                                        className="flex items-center gap-2"
-                                    >
-                                        <Checkbox
-                                            checked={selectedCompositions.includes(
-                                                item.id
-                                            )} // Controlled by state
-                                            onCheckedChange={(checked) =>
-                                                handleCheckboxChange(
-                                                    item.id,
-                                                    Boolean(checked)
-                                                )
-                                            } // Update state
-                                        />
-                                        <Label>{item.label}</Label>
-                                    </div>
-                                ))}
                             </div>
                         </div>
                     </div>
                     <AlertDialog.Footer>
                         <AlertDialog.Cancel asChild>
-                            <Button
-                                type="submit"
-                                onClick={() =>
-                                    console.log({
-                                        value,
-                                        profit,
-                                        mass,
-                                        selectedCompositions,
-                                    })
-                                }
-                            >
+                            <Button type="submit" onClick={applyFilters}>
                                 Show Results
                             </Button>
                         </AlertDialog.Cancel>
