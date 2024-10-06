@@ -20,7 +20,7 @@ const DatabaseProvider: React.FC<ProviderProps> = ({ children }) => {
         const sqlPromise = initSqlJs({
             locateFile: (file) => `https://sql.js.org/dist/${file}`,
         });
-        const dataPromise = fetch("holocron/data/holocron.db").then((res) =>
+        const dataPromise = fetch("data/holocron.db").then((res) =>
             res.arrayBuffer()
         );
         const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
