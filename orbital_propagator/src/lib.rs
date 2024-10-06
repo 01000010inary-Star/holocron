@@ -10,9 +10,10 @@ mod objects;
 use objects::*;
 mod orbits;
 use orbits::*;
+mod util;
 
 #[wasm_bindgen]
-pub fn get_coordinates(input: &str) -> Result<String, JsValue> {
+pub fn get_coordinates(input: &str, is_planet: bool) -> Result<String, JsValue> {
 
     let input_bodies: Vec<InputBody> = from_str(input)
         .map_err(|e| JsValue::from_str(&format!("Failure parsing bodies into structured type: {}", e)))?;
@@ -20,7 +21,7 @@ pub fn get_coordinates(input: &str) -> Result<String, JsValue> {
     let output_bodies: Vec<OutputBody> = input_bodies
         .into_iter()
         .map(|body| {
-            body.into_has_cords()
+            body.into_has_cords(is_planet)
         })
         .collect();
 
@@ -30,16 +31,15 @@ pub fn get_coordinates(input: &str) -> Result<String, JsValue> {
 }
 
 #[wasm_bindgen]
-pub fn get_orbit_paths(input: &str) -> Result<String, JsValue> {
+pub fn get_orbit_paths(input: &str, is_planet: bool) -> Result<String, JsValue> {
     let input_bodies: Vec<InputBody> = from_str(input)
         .map_err(|e| JsValue::from_str(&format!("Failure parsing bodies into structured type: {}", e)))?;
 
     let orbits_with_ids: Vec<Orbit> = input_bodies
         .into_iter()
         .map(|body| {
-            let mut flat_orbit = Orbit::new_flat(&body, Some(80));
-            flat_orbit.rotate_3D(&body);
-
+            let mut flat_orbit = Orbit::new_flat(&body, is_planet, Some(80));
+            flat_orbit.rotate_3D(&body, is_planet);
             flat_orbit
         })
         .collect();
