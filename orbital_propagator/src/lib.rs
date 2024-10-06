@@ -86,10 +86,6 @@ pub fn get_eccentric_anomaly(e: f64, e_deg: f64, m: f64) -> f64 {
             break;
         }
 
-        // if count % 1000 == 0 {
-        //     println!("Count: {} | delta_E.abs(): {}", count, delta_E.abs());
-        // }
-
         // Should never even be close
         if count > 100_000 {
             break;
@@ -174,17 +170,17 @@ pub fn get_cords(val: &InputBody, out: &mut OutputBody) -> () {
         a + b
     };
 
-    println!("x: {}", x_cord);
-    println!("y: {}", y_cord);
-    println!("z: {}", z_cord);
-    println!("---");
-    println!("x_ecl: {}", x_ecl);
-    println!("y_ecl: {}", y_ecl);
-    println!("z_ecl: {}", z_ecl);
-    println!("---");
-    println!("x_eq: {}", x_eq);
-    println!("y_eq: {}", y_eq);
-    println!("z_eq: {}", z_eq);
+    // println!("x: {}", x_cord);
+    // println!("y: {}", y_cord);
+    // println!("z: {}", z_cord);
+    // println!("---");
+    // println!("x_ecl: {}", x_ecl);
+    // println!("y_ecl: {}", y_ecl);
+    // println!("z_ecl: {}", z_ecl);
+    // println!("---");
+    // println!("x_eq: {}", x_eq);
+    // println!("y_eq: {}", y_eq);
+    // println!("z_eq: {}", z_eq);
 
     out.x_orbital_plane = x_cord;
     out.y_orbital_plane = y_cord;
@@ -233,24 +229,7 @@ mod tests {
     use super::*;
 
     fn get_test_body() -> InputBody {
-        // InputBody {
-        //     id: 1,
-        //     semi_major_axis: 45.1,
-        //     eccentricity: 32.2,
-        //     inclination: 19.9,
-        //     longitude_asc_node: 22.2,
-        //     arg_perihelion: 2.24423,
-        //     mean_anomaly: 9.8847,
-        //     centuries_past_j2000: 45.2,
-        // }
 
-
-        // e: 0.3221
-        // a: 0.741
-        // q: 0.502
-        // i: 25.62
-        // om: 103.87
-        // w: 252.94
         let mars = InputBody {
             id: 4,
             // AU
