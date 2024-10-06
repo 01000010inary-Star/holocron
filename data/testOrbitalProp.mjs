@@ -1,3 +1,5 @@
+import fs from "node:fs";
+
 import('../orbital_propagator/pkg/orbital_propagator.js').then((wasm) => {
     const input = JSON.stringify([
         {
@@ -26,7 +28,8 @@ import('../orbital_propagator/pkg/orbital_propagator.js').then((wasm) => {
     try {
         const result = wasm.get_coordinates(input);
         console.log("Result from WASM `get_coordinates()`");
-        console.log(result);
+        fs.writeFileSync("./public/data/coordinates.json", result);
+        console.log("Wrote coordinates to ./public/data/coordinates.json");
     } catch (e) {
         console.error("Error calling WASM fn `get_coordinates`()");
         console.error(e);
