@@ -6,6 +6,7 @@ import topLevelAwait from "vite-plugin-top-level-await";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+    base: "/holocron",
     plugins: [
         react(),
         wasm(),
