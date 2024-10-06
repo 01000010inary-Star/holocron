@@ -12,9 +12,9 @@ echo "compiling orbital propagator to wasm"
 
 wasm-pack build --target bundler
 
-mkdir -p "../public/orbital_prop"
-mv "pkg/orbital_propagator.d.ts" "../public/orbital_prop/orbital_propagator.d.ts"
-mv "pkg/orbital_propagator.js" "../public/orbital_prop/orbital_propagator.js"
-mv "pkg/orbital_propagator_bg.js" "../public/orbital_prop/orbital_propagator_bg.js"
-mv "pkg/orbital_propagator_bg.wasm" "../public/orbital_prop/orbital_propagator_bg.wasm"
-mv "pkg/orbital_propagator_bg.wasm.d.ts" "../public/orbital_prop/orbital_propagator_bg.wasm.d.ts"
+mkdir -p "../src/wasm"
+mv "pkg/orbital_propagator.d.ts" "../src/wasm/orbital_propagator.d.ts"
+mv "pkg/orbital_propagator.js" "../src/wasm/orbital_propagator.js"
+mv "pkg/orbital_propagator_bg.js" "../src/wasm/orbital_propagator_bg.js"
+mv "pkg/orbital_propagator_bg.wasm" "../src/wasm/orbital_propagator_bg.wasm"
+mv "pkg/orbital_propagator_bg.wasm.d.ts" "../src/wasm/orbital_propagator_bg.wasm.d.ts"

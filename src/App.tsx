@@ -3,11 +3,11 @@ import Orrery from "./orrery/Orrery";
 import Filter from "@/filter/Filter.tsx";
 import { DatabaseProvider } from "./contexts/DatabaseContext";
 import Results from "@/filter/Results.tsx";
-import { OrbitPropagatorProvider } from "./orrery/OrbitPropagatorContext";
+import { OrbitalPropagatorProvider } from "./contexts/OrbitalPropagatorContext";
 
 const App: React.FC = () => {
     return (
-        <OrbitPropagatorProvider>
+        <OrbitalPropagatorProvider>
             <DatabaseProvider>
                 <div>
                     <Filter />
@@ -15,7 +15,7 @@ const App: React.FC = () => {
                     <Orrery />
                 </div>
             </DatabaseProvider>
-        </OrbitPropagatorProvider>
+        </OrbitalPropagatorProvider>
     );
 };
 
