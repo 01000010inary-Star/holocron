@@ -1,21 +1,10 @@
-import React, { useContext } from "react";
 import { Canvas } from "@react-three/fiber";
-import Object from "./Object";
-import { DatabaseContext } from "@/contexts/DatabaseContext";
+import { MainScene } from "./scenes/MainScene";
 
 const Orrery: React.FC = () => {
-    const db = useContext(DatabaseContext);
-
-    console.log(db?.db?.exec("select count(*) from small_body;"));
-
     return (
-        <Canvas>
-            <ambientLight intensity={2} />
-            <Object />
-            <mesh position={[5, 0, 0]} scale={1}>
-                <sphereGeometry args={[2, 25, 25]} />
-                <meshStandardMaterial color="hotpink" />
-            </mesh>
+        <Canvas className="w-screen h-screen absolute block top-0 left-0 overflow-hidden" style={{ width: "100vw", height: "100vh" }}>
+            <MainScene />
         </Canvas>
     );
 };
