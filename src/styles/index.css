@@ -27,25 +27,43 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+
+    /* radius */
     --radius-sm: 0.25rem; /* 4px */
     --radius-md: 0.5rem; /* 8px */
     --radius-lg: 0.75rem; /* 12px */
+
+    /* font size */
+    --font-size-xs: 0.875rem; /* 14px */;
+    --font-size-sm: 1rem; /* 16px */
+    --font-size-md: 1.25rem; /* 20px */
+    --font-size-lg: 1.5rem; /* 24px */
+    --font-size-xl: 1.875rem; /* 30px */
   }
 }
 @layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    font-family: 'Lato', sans-serif;
-    @apply bg-background text-foreground;
-  }
+    * {
+        @apply border-border;
+    }
+    body {
+        font-family: "Lato", sans-serif;
+        @apply bg-background text-foreground;
+    }
 
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-bold text-foreground;
-  }
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-bold text-foreground;
+    }
 
-  p, span, li, strong, a {
-    @apply text-foreground;
-  }
+    p,
+    span,
+    li,
+    strong,
+    a {
+        @apply text-foreground;
+    }
 }

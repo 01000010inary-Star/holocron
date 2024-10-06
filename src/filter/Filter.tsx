@@ -1,31 +1,18 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-    Dialog,
-    DialogContent,
-    DialogClose,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
-import { Slider } from "@/components/ui/slider";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { useState } from 'react';
+import { AlertDialog, Button, Checkbox, Slider, Label } from '@/components/ui';
 
 // Values for Checkboxes in the filter pane
 const items = [
-    { id: "c", label: "C-type (Carbonaceous)" },
-    { id: "s", label: "S-type (Silicaceous or Stony)" },
-    { id: "m", label: "M-type (Metallic)" },
-    { id: "p", label: "P-type (Primitive)" },
-    { id: "d", label: "D-type (Organic Rich)" },
-    { id: "q", label: "Q-type (Basaltic)" },
-    { id: "r", label: "R-type (Rare, Silicaceous)" },
-    { id: "v", label: "V-type (Vestoids)" },
-    { id: "e", label: "E-type (Enstatite-rich)" },
-    { id: "b", label: "B-type (B-type Carbonaceous)" },
+    { id: 'c', label: 'C-type (Carbonaceous)' },
+    { id: 's', label: 'S-type (Silicaceous or Stony)' },
+    { id: 'm', label: 'M-type (Metallic)' },
+    { id: 'p', label: 'P-type (Primitive)' },
+    { id: 'd', label: 'D-type (Organic Rich)' },
+    { id: 'q', label: 'Q-type (Basaltic)' },
+    { id: 'r', label: 'R-type (Rare, Silicaceous)' },
+    { id: 'v', label: 'V-type (Vestoids)' },
+    { id: 'e', label: 'E-type (Enstatite-rich)' },
+    { id: 'b', label: 'B-type (B-type Carbonaceous)' },
 ] as const;
 
 const Filter: React.FC = () => {
@@ -52,15 +39,15 @@ const Filter: React.FC = () => {
 
     return (
         <div className=" absolute top-10 left-10 p-4 z-10">
-            <Dialog>
-                <DialogTrigger asChild>
+            <AlertDialog>
+                <AlertDialog.Trigger asChild>
                     <Button variant="outline">Filter Objects</Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle>Filter Objects</DialogTitle>
-                        <DialogDescription></DialogDescription>
-                    </DialogHeader>
+                </AlertDialog.Trigger>
+                <AlertDialog.Content className="sm:max-w-[425px]">
+                    <AlertDialog.Header>
+                        <AlertDialog.Title>Filter Objects</AlertDialog.Title>
+                        <AlertDialog.Description></AlertDialog.Description>
+                    </AlertDialog.Header>
                     <div className="grid gap-4 py-4">
                         {/* Value Slider */}
                         <div className="grid grid-cols-4 items-center gap-4">
@@ -168,8 +155,8 @@ const Filter: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                    <DialogFooter>
-                        <DialogClose asChild>
+                    <AlertDialog.Footer>
+                        <AlertDialog.Cancel asChild>
                             <Button
                                 type="submit"
                                 onClick={() =>
@@ -183,10 +170,10 @@ const Filter: React.FC = () => {
                             >
                                 Show Results
                             </Button>
-                        </DialogClose>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                        </AlertDialog.Cancel>
+                    </AlertDialog.Footer>
+                </AlertDialog.Content>
+            </AlertDialog>
         </div>
     );
 };

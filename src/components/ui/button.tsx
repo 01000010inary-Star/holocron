@@ -13,6 +13,7 @@ export const buttonVariants = cva(
                 default: 'bg-white text-background hover:bg-white/90',
                 outline:
                     'border border-input hover:bg-accent hover:bg-accent-foreground',
+                ghost: 'bg-transparent hover:bg-accent hover:bg-accent-foreground',
             },
             size: {
                 default: 'h-14 px-4 py-2',
