@@ -6,8 +6,9 @@
     "license": "ISC",
     "type": "module",
     "scripts": {
-        "dev": "vite",
-        "build": "tsc -b && vite build",
+        "deps": "(cd data && ./createDatabase.sh)",
+        "dev": "npm run deps && vite",
+        "build": "npm run deps && tsc -b && vite build",
         "preview": "vite preview",
         "lint": "eslint .",
         "format": "prettier --write ."
@@ -17,6 +18,7 @@
         "@types/node": "^22.7.4",
         "@types/react": "^18.3.11",
         "@types/react-dom": "^18.3.0",
+        "@types/sql.js": "^1.4.9",
         "@types/three": "^0.169.0",
         "@vitejs/plugin-react-swc": "^3.7.1",
         "autoprefixer": "^10.4.20",
@@ -39,14 +41,15 @@
         "@radix-ui/react-checkbox": "^1.1.2",
         "@radix-ui/react-slider": "^1.2.1",
         "@radix-ui/react-slot": "^1.1.0",
+        "@react-three/fiber": "^8.17.9",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.1",
         "lucide-react": "^0.447.0",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
+        "sql.js": "^1.11.0",
         "tailwind-merge": "^2.5.3",
         "tailwindcss-animate": "^1.0.7",
-        "@react-three/fiber": "^8.17.9",
         "three": "^0.169.0"
     }
 }

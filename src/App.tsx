@@ -1,11 +1,14 @@
 import React from "react";
 import Orrery from "./orrery/Orrery";
+import { DatabaseProvider } from "./contexts/DatabaseContext";
 
 const App: React.FC = () => {
     return (
-        <div>
-            <Orrery />
-        </div>
+        <DatabaseProvider>
+            <div>
+                <Orrery />
+            </div>
+        </DatabaseProvider>
     );
 };
 
