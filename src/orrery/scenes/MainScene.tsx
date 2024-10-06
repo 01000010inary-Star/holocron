@@ -39,7 +39,9 @@ export function MainScene() {
         <>
             <ambientLight intensity={2} />
             <pointLight position={[10, 10, 10]} />
-            {planets.map(planet => <Planet key={planet.id} keplerian_elements={planet} time={0} />)}
+            {planets.map((planet) => (
+                <Planet key={planet.id} keplerian_elements={planet} time={0} />
+            ))}
             <OrbitControls />
         </>
     );
