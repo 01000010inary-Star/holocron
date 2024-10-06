@@ -5,12 +5,14 @@ import PlanetType from "@/types/PlanetType";
 import { Planet } from "../Planet";
 
 export function MainScene() {
-    const db = useContext(DatabaseContext);
+    // db is the entire unaltered DB
+    // filteredDb is the filtered version of the DB that should be displayed
+    const { db, filteredDb } = useContext(DatabaseContext);
 
     const [planets, setPlanets] = useState<PlanetType[]>([]);
 
     useEffect(() => {
-        const res = db?.db?.exec("select * from planet;");
+        const res = db?.exec("select * from planet;");
         if (res && res.length > 0) {
             const resArr = res[0].values;
             const newPlanets = resArr.map((planet) => {
