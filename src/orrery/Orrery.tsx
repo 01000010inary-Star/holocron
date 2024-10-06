@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Canvas } from "@react-three/fiber";
 import Object from "./Object";
+import { DatabaseContext } from "@/contexts/DatabaseContext";
 
 const Orrery: React.FC = () => {
+    const db = useContext(DatabaseContext);
+
+    console.log(db?.db?.exec("select count(*) from small_body;"));
+
     return (
         <Canvas>
             <ambientLight intensity={2} />
