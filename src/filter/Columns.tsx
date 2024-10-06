@@ -35,12 +35,14 @@ export const columns: ColumnDef<Orbit>[] = [
             return (
                 <Button
                     variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === "asc")
+                    }
                 >
                     Value ($B)
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
-            )
+            );
         },
         cell: ({ row }) => {
             const value = parseFloat(row.getValue("value"));
@@ -58,12 +60,14 @@ export const columns: ColumnDef<Orbit>[] = [
             return (
                 <Button
                     variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === "asc")
+                    }
                 >
                     Profit ($B)
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
-            )
+            );
         },
         cell: ({ row }) => {
             const value = parseFloat(row.getValue("profit"));

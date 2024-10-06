@@ -1,18 +1,18 @@
-import { useState } from 'react';
-import { AlertDialog, Button, Checkbox, Slider, Label } from '@/components/ui';
+import { useState } from "react";
+import { AlertDialog, Button, Checkbox, Slider, Label } from "@/components/ui";
 
 // Values for Checkboxes in the filter pane
 const items = [
-    { id: 'c', label: 'C-type (Carbonaceous)' },
-    { id: 's', label: 'S-type (Silicaceous or Stony)' },
-    { id: 'm', label: 'M-type (Metallic)' },
-    { id: 'p', label: 'P-type (Primitive)' },
-    { id: 'd', label: 'D-type (Organic Rich)' },
-    { id: 'q', label: 'Q-type (Basaltic)' },
-    { id: 'r', label: 'R-type (Rare, Silicaceous)' },
-    { id: 'v', label: 'V-type (Vestoids)' },
-    { id: 'e', label: 'E-type (Enstatite-rich)' },
-    { id: 'b', label: 'B-type (B-type Carbonaceous)' },
+    { id: "c", label: "C-type (Carbonaceous)" },
+    { id: "s", label: "S-type (Silicaceous or Stony)" },
+    { id: "m", label: "M-type (Metallic)" },
+    { id: "p", label: "P-type (Primitive)" },
+    { id: "d", label: "D-type (Organic Rich)" },
+    { id: "q", label: "Q-type (Basaltic)" },
+    { id: "r", label: "R-type (Rare, Silicaceous)" },
+    { id: "v", label: "V-type (Vestoids)" },
+    { id: "e", label: "E-type (Enstatite-rich)" },
+    { id: "b", label: "B-type (B-type Carbonaceous)" },
 ] as const;
 
 const Filter: React.FC = () => {

@@ -40,7 +40,6 @@ export function DataTable<TData, TValue>({
         state: {
             sorting,
         },
-
     });
 
     return (

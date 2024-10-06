@@ -12,4 +12,3 @@ export const Planet: React.FC<PlanetProps> = ({ position }) => {
         </Sphere>
     );
 };
-

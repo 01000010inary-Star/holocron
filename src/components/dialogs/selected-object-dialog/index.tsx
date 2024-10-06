@@ -1,6 +1,6 @@
-import { X } from 'lucide-react';
-import { AlertDialog, Button } from '../../ui';
-import { CuteRocket } from './cute-rocket';
+import { X } from "lucide-react";
+import { AlertDialog, Button } from "../../ui";
+import { CuteRocket } from "./cute-rocket";
 
 interface SelectedObjectDialogProps {
     name: string;

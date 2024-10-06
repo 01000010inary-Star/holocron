@@ -34,7 +34,10 @@ const Results: React.FC = () => {
                                     <Cross1Icon className="h-4 w-4" />
                                 </Button>
                             </DrawerClose>
-                            <DrawerTitle className="flex items-center">Near-Earth Objects & Potentially Hazardous Asteroids</DrawerTitle>
+                            <DrawerTitle className="flex items-center">
+                                Near-Earth Objects & Potentially Hazardous
+                                Asteroids
+                            </DrawerTitle>
                             <DrawerDescription></DrawerDescription>
                         </DrawerHeader>
                         <div className="p-4 pb-0">
