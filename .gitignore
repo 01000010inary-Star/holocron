@@ -1,3 +1,5 @@
 node_modules
 .DS_Store
 dist
+/orbital_propagator/target
+/orbital_propagator/pkg
