@@ -5,32 +5,23 @@ import { Orbit } from "@/filter/Columns.tsx";
 interface DatabaseContextType {
     db: Database | null;
     filteredDb: Orbit[];
+    isConnecting: boolean;
     updateFilteredDb: (newData: Orbit[]) => void;
 }
+interface ProviderProps {
+    children: React.ReactNode;
+}
+
+const isDev = import.meta.env.DEV;
 
 const DatabaseContext = createContext<DatabaseContextType | undefined>(
     undefined
 );
 
-interface ProviderProps {
-    children: React.ReactNode;
-}
-
 const DatabaseProvider: React.FC<ProviderProps> = ({ children }) => {
     const [db, setDb] = useState<Database | null>(null);
     const [filteredDb, setFilteredDb] = useState<Orbit[]>([]);
-
-    async function connectToDb() {
-        const sqlPromise = initSqlJs({
-            locateFile: (file) => `https://sql.js.org/dist/${file}`,
-        });
-        const dataPromise = fetch("data/holocron.db").then((res) =>
-            res.arrayBuffer()
-        );
-        const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
-        const newDb = new SQL.Database(new Uint8Array(buf));
-        setDb(newDb);
-    }
+    const [isConnecting, setIsConnecting] = useState(false);
 
     function DbToJSON(database: Database) {
         const res = database?.exec("select * from small_body;");
@@ -38,7 +29,7 @@ const DatabaseProvider: React.FC<ProviderProps> = ({ children }) => {
             const resArr = res[0].values;
             const newSmallBody = resArr.map((body) => {
                 return {
-                    id: body[0] as number,
+                    id: body[0],
                     primary_designation: body[1] as string,
                     semi_major_axis: body[2] as number,
                     eccentricity: body[3] as number,
@@ -62,10 +53,26 @@ const DatabaseProvider: React.FC<ProviderProps> = ({ children }) => {
 
     // Effect to connect to the database when the component mounts
     useEffect(() => {
-        const initializeDb = async () => {
-            await connectToDb(); // Connect to the database
-        };
-        initializeDb();
+        async function connectToDb() {
+            try {
+                setIsConnecting(true);
+                const sqlPromise = initSqlJs({
+                    locateFile: (file) => `https://sql.js.org/dist/${file}`,
+                });
+                const dataPromise = fetch(
+                    isDev ? "holocron/data/holocron.db" : "data/holocron.db"
+                ).then((res) => res.arrayBuffer());
+                const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
+                const newDb = new SQL.Database(new Uint8Array(buf));
+                setDb(newDb);
+            } catch (error) {
+                console.error("Could not connect to database", error);
+            } finally {
+                setIsConnecting(false);
+            }
+        }
+
+        connectToDb();
     }, []);
 
     // Effect to convert the database data into JSON after `db` is initialized
@@ -76,7 +83,9 @@ const DatabaseProvider: React.FC<ProviderProps> = ({ children }) => {
     }, [db]); // Trigger only when db is set
 
     return (
-        <DatabaseContext.Provider value={{ db, filteredDb, updateFilteredDb }}>
+        <DatabaseContext.Provider
+            value={{ db, filteredDb, isConnecting, updateFilteredDb }}
+        >
             {children}
         </DatabaseContext.Provider>
     );

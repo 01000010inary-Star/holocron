@@ -6,37 +6,36 @@ import { Planet } from "../Planet";
 import { OrbitalPropagatorContext } from "@/contexts/OrbitalPropagatorContext";
 
 export function MainScene() {
-
-    const { db } = useContext(DatabaseContext);
+    const databaseConnection = useContext(DatabaseContext);
     const orbitalProp = useContext(OrbitalPropagatorContext);
 
     const [planets, setPlanets] = useState<PlanetType[]>([]);
 
     useEffect(() => {
-        const res = db?.exec("select * from planet;");
+        const res = databaseConnection?.db?.exec("select * from planet;");
         if (res && res.length > 0) {
             const resArr = res[0].values;
-            const newPlanets = resArr.map((planet: PlanetType) => {
+            const newPlanets = resArr.map((planet: any) => {
                 return {
-                    id: planet[0] as number,
-                    name: planet[1] as string,
-                    semi_major_axis_au: planet[2] as number,
-                    semi_major_axis_au_century: planet[3] as number,
-                    eccentricity_rad: planet[4] as number,
-                    eccentricity_rad_century: planet[5] as number,
-                    inclination_deg: planet[6] as number,
-                    inclination_deg_century: planet[7] as number,
-                    mean_longitude_deg: planet[8] as number,
-                    mean_longitude_deg_century: planet[9] as number,
-                    longitude_perihelion_deg: planet[10] as number,
-                    longitude_perihelion_deg_century: planet[11] as number,
-                    longitude_asc_node_deg: planet[12] as number,
-                    longitude_asc_node_deg_century: planet[13] as number,
+                    id: planet[0],
+                    name: planet[1],
+                    semi_major_axis_au: planet[2],
+                    semi_major_axis_au_century: planet[3],
+                    eccentricity_rad: planet[4],
+                    eccentricity_rad_century: planet[5],
+                    inclination_deg: planet[6],
+                    inclination_deg_century: planet[7],
+                    mean_longitude_deg: planet[8],
+                    mean_longitude_deg_century: planet[9],
+                    longitude_perihelion_deg: planet[10],
+                    longitude_perihelion_deg_century: planet[11],
+                    longitude_asc_node_deg: planet[12],
+                    longitude_asc_node_deg_century: planet[13],
                 };
             });
             setPlanets(newPlanets);
         }
-    }, [db]);
+    }, [databaseConnection?.db]);
 
     if (!orbitalProp?.ready) {
         return (
