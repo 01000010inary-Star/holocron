@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { AlertDialog, Button, Slider, Label } from "@/components/ui";
 import { DatabaseContext } from "@/contexts/DatabaseContext.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { SmallBodyType } from "@/types/SmallBodyType";
 
 const Filter: React.FC = () => {
     const [primaryDesignation, setPrimaryDesignation] = useState<string>("");
@@ -16,11 +17,11 @@ const Filter: React.FC = () => {
     ]);
 
     // Use Context to access db and filteredDb
-    const { db, updateFilteredDb } = useContext(DatabaseContext);
-    const [smallBody, setSmallBody] = useState<>([]);
+    const databaseConnection = useContext(DatabaseContext);
+    const [smallBody, setSmallBody] = useState<SmallBodyType[]>([]);
 
     useEffect(() => {
-        const res = db?.exec("select * from small_body;");
+        const res = databaseConnection?.db?.exec("select * from small_body;");
         if (res && res.length > 0) {
             const resArr = res[0].values;
             const newSmallBody = resArr.map((body) => {
@@ -33,69 +34,68 @@ const Filter: React.FC = () => {
                     mean_anomaly: body[7] as number,
                     period: body[8] as number,
                     orbit_class: body[11] as string,
-                    date_first_obs: body[12] as Date,
-                    date_last_obs: body[13] as Date,
+                    date_first_obs: new Date(body[12]?.toString()!),
+                    date_last_obs: new Date(body[13]?.toString()!),
                 };
             });
-            console.log("Updated Filter.tsx DB");
             setSmallBody(newSmallBody);
         }
-    }, [db]);
+    }, [databaseConnection?.db]);
 
     // Handle the filter logic
-    const applyFilters = () => {
-        // Start with the full data
-        let filtered = smallBody;
-        console.log("Current Filter Values:");
-        console.log("Primary Designation:", primaryDesignation);
-        console.log("Semi-Major Axis:", semiMajorAxis);
-        console.log("Eccentricity:", eccentricity);
-        console.log("Inclination:", inclination);
+    // const applyFilters = () => {
+    //     // Start with the full data
+    //     let filtered = smallBody;
+    //     console.log("Current Filter Values:");
+    //     console.log("Primary Designation:", primaryDesignation);
+    //     console.log("Semi-Major Axis:", semiMajorAxis);
+    //     console.log("Eccentricity:", eccentricity);
+    //     console.log("Inclination:", inclination);
 
-        // Apply filters only if values are provided
-        if (primaryDesignation) {
-            filtered = filtered.filter((item) =>
-                item.primary_designation
-                    .toLowerCase()
-                    .includes(primaryDesignation.toLowerCase())
-            );
-        }
-        if (semiMajorAxis !== "") {
-            filtered = filtered.filter(
-                (item) =>
-                    item.semi_major_axis >= Number(semiMajorAxis[0]) &&
-                    item.semi_major_axis <= Number(semiMajorAxis[1])
-            );
-        }
-        if (eccentricity !== "") {
-            filtered = filtered.filter((item) => {
-                const eccentricityValue = parseFloat(
-                    item.eccentricity.toFixed(6)
-                ); // Round to avoid floating-point errors
-                return (
-                    eccentricityValue >= eccentricity[0] &&
-                    eccentricityValue <= eccentricity[1]
-                );
-            });
-        }
-        if (inclination !== "") {
-            filtered = filtered.filter((item) => {
-                const inclinationValue = parseFloat(
-                    item.inclination.toFixed(6)
-                ); // Round to avoid floating-point errors
-                return (
-                    inclinationValue >= inclination[0] &&
-                    inclinationValue <= inclination[1]
-                );
-            });
-        }
+    //     // Apply filters only if values are provided
+    //     if (primaryDesignation) {
+    //         filtered = filtered.filter((item) =>
+    //             item.primary_designation
+    //                 .toLowerCase()
+    //                 .includes(primaryDesignation.toLowerCase())
+    //         );
+    //     }
+    //     if (semiMajorAxis !== "") {
+    //         filtered = filtered.filter(
+    //             (item) =>
+    //                 item.semi_major_axis >= Number(semiMajorAxis[0]) &&
+    //                 item.semi_major_axis <= Number(semiMajorAxis[1])
+    //         );
+    //     }
+    //     if (eccentricity !== "") {
+    //         filtered = filtered.filter((item) => {
+    //             const eccentricityValue = parseFloat(
+    //                 item.eccentricity.toFixed(6)
+    //             ); // Round to avoid floating-point errors
+    //             return (
+    //                 eccentricityValue >= eccentricity[0] &&
+    //                 eccentricityValue <= eccentricity[1]
+    //             );
+    //         });
+    //     }
+    //     if (inclination !== "") {
+    //         filtered = filtered.filter((item) => {
+    //             const inclinationValue = parseFloat(
+    //                 item.inclination.toFixed(6)
+    //             ); // Round to avoid floating-point errors
+    //             return (
+    //                 inclinationValue >= inclination[0] &&
+    //                 inclinationValue <= inclination[1]
+    //             );
+    //         });
+    //     }
 
-        // Update the filteredDb in the context
-        updateFilteredDb(filtered);
-    };
+    //     // Update the filteredDb in the context
+    //     updateFilteredDb(filtered);
+    // };
 
     return (
-        <div className=" absolute top-10 left-10 p-4 z-10">
+        <div className="absolute top-10 left-10 p-4 z-10">
             <AlertDialog>
                 <AlertDialog.Trigger asChild>
                     <Button variant="outline">Filter Objects</Button>
@@ -205,7 +205,7 @@ const Filter: React.FC = () => {
                     </div>
                     <AlertDialog.Footer>
                         <AlertDialog.Cancel asChild>
-                            <Button type="submit" onClick={applyFilters}>
+                            <Button type="submit">
                                 Show Results
                             </Button>
                         </AlertDialog.Cancel>

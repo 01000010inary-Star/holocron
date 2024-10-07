@@ -12,18 +12,22 @@ import {
     DrawerTitle,
     DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Label } from "@/components/ui/label.tsx";
 import Table from "@/filter/Table.tsx";
-import {useContext} from "react";
-import {DatabaseContext} from "@/contexts/DatabaseContext.tsx";
+import { useContext } from "react";
+import { DatabaseContext } from "@/contexts/DatabaseContext.tsx";
 
 const Results: React.FC = () => {
-    const { filteredDb } = useContext(DatabaseContext);
+    const databaseConnection = useContext(DatabaseContext);
     return (
         <div className="absolute bottom-10 left-10 p-4 z-10">
             <Drawer>
                 <DrawerTrigger asChild>
-                    <Button variant="outline">{filteredDb.length} Results</Button>
+                    <Button
+                        variant="outline"
+                        disabled={databaseConnection?.isConnecting}
+                    >
+                        {databaseConnection?.filteredDb.length} Results
+                    </Button>
                 </DrawerTrigger>
                 <DrawerContent>
                     <div className="mx-auto w-full">
@@ -41,9 +45,7 @@ const Results: React.FC = () => {
                                 Near-Earth Objects & Potentially Hazardous
                                 Asteroids
                             </DrawerTitle>
-                            <DrawerDescription>
-
-                            </DrawerDescription>
+                            <DrawerDescription></DrawerDescription>
                         </DrawerHeader>
                         <div className="p-4 pb-0">
                             <div className="flex items-center justify-center space-x-2">
