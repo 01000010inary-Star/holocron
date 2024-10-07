@@ -1,16 +1,22 @@
-import {useContext, useEffect, useState} from "react";
-import { AlertDialog, Button, Checkbox, Slider, Label } from "@/components/ui";
-import {DatabaseContext} from "@/contexts/DatabaseContext.tsx";
-import {Input} from "@/components/ui/input.tsx";
+import { useContext, useEffect, useState } from "react";
+import { AlertDialog, Button, Slider, Label } from "@/components/ui";
+import { DatabaseContext } from "@/contexts/DatabaseContext.tsx";
+import { Input } from "@/components/ui/input.tsx";
 
 const Filter: React.FC = () => {
     const [primaryDesignation, setPrimaryDesignation] = useState<string>("");
-    const [semiMajorAxis, setSemiMajorAxis] = useState<[number, number]>([0.0, 360.0]);
-    const [eccentricity, setEccentricity] = useState<[number, number]>([0.0, 1.0]);
-    const [inclination, setInclination] = useState<[number, number]>([0.0, 180.0]);
+    const [semiMajorAxis, setSemiMajorAxis] = useState<[number, number]>([
+        0.0, 360.0,
+    ]);
+    const [eccentricity, setEccentricity] = useState<[number, number]>([
+        0.0, 1.0,
+    ]);
+    const [inclination, setInclination] = useState<[number, number]>([
+        0.0, 180.0,
+    ]);
 
     // Use Context to access db and filteredDb
-    const { db, filteredDb, updateFilteredDb } = useContext(DatabaseContext);
+    const { db, updateFilteredDb } = useContext(DatabaseContext);
     const [smallBody, setSmallBody] = useState<>([]);
 
     useEffect(() => {
@@ -49,7 +55,9 @@ const Filter: React.FC = () => {
         // Apply filters only if values are provided
         if (primaryDesignation) {
             filtered = filtered.filter((item) =>
-                item.primary_designation.toLowerCase().includes(primaryDesignation.toLowerCase())
+                item.primary_designation
+                    .toLowerCase()
+                    .includes(primaryDesignation.toLowerCase())
             );
         }
         if (semiMajorAxis !== "") {
@@ -61,7 +69,9 @@ const Filter: React.FC = () => {
         }
         if (eccentricity !== "") {
             filtered = filtered.filter((item) => {
-                const eccentricityValue = parseFloat(item.eccentricity.toFixed(6)); // Round to avoid floating-point errors
+                const eccentricityValue = parseFloat(
+                    item.eccentricity.toFixed(6)
+                ); // Round to avoid floating-point errors
                 return (
                     eccentricityValue >= eccentricity[0] &&
                     eccentricityValue <= eccentricity[1]
@@ -70,7 +80,9 @@ const Filter: React.FC = () => {
         }
         if (inclination !== "") {
             filtered = filtered.filter((item) => {
-                const inclinationValue = parseFloat(item.inclination.toFixed(6)); // Round to avoid floating-point errors
+                const inclinationValue = parseFloat(
+                    item.inclination.toFixed(6)
+                ); // Round to avoid floating-point errors
                 return (
                     inclinationValue >= inclination[0] &&
                     inclinationValue <= inclination[1]

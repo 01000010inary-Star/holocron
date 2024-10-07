@@ -18,7 +18,7 @@ interface ProviderProps {
 
 const DatabaseProvider: React.FC<ProviderProps> = ({ children }) => {
     const [db, setDb] = useState<Database | null>(null);
-    const [filteredDb, setFilteredDb] = useState<>([]);
+    const [filteredDb, setFilteredDb] = useState<Orbit[]>([]);
 
     async function connectToDb() {
         const sqlPromise = initSqlJs({
@@ -46,12 +46,12 @@ const DatabaseProvider: React.FC<ProviderProps> = ({ children }) => {
                     mean_anomaly: body[7] as number,
                     period: body[8] as number,
                     orbit_class: body[11] as string,
-                    date_first_obs: body[12] as Date,
-                    date_last_obs: body[13] as Date,
+                    date_first_obs: new Date(body[12] as unknown as string),
+                    date_last_obs: new Date(body[13] as unknown as string),
                 };
             });
             console.log("Updated Filter DB");
-            setFilteredDb(newSmallBody);
+            setFilteredDb(newSmallBody as Orbit[]);
         }
     }
 

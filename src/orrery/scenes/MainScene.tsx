@@ -6,9 +6,8 @@ import { Planet } from "../Planet";
 import { OrbitalPropagatorContext } from "@/contexts/OrbitalPropagatorContext";
 
 export function MainScene() {
-    // db is the entire unaltered DB
-    // filteredDb is the filtered version of the DB that should be displayed
-    const { db, filteredDb } = useContext(DatabaseContext);
+
+    const { db } = useContext(DatabaseContext);
     const orbitalProp = useContext(OrbitalPropagatorContext);
 
     const [planets, setPlanets] = useState<PlanetType[]>([]);
@@ -17,7 +16,7 @@ export function MainScene() {
         const res = db?.exec("select * from planet;");
         if (res && res.length > 0) {
             const resArr = res[0].values;
-            const newPlanets = resArr.map((planet) => {
+            const newPlanets = resArr.map((planet: PlanetType) => {
                 return {
                     id: planet[0] as number,
                     name: planet[1] as string,
