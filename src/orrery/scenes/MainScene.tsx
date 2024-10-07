@@ -3,11 +3,13 @@ import { useState, useContext, useEffect } from "react";
 import { DatabaseContext } from "@/contexts/DatabaseContext";
 import PlanetType from "@/types/PlanetType";
 import { Planet } from "../Planet";
+import { OrbitalPropagatorContext } from "@/contexts/OrbitalPropagatorContext";
 
 export function MainScene() {
     // db is the entire unaltered DB
     // filteredDb is the filtered version of the DB that should be displayed
     const { db, filteredDb } = useContext(DatabaseContext);
+    const orbitalProp = useContext(OrbitalPropagatorContext);
 
     const [planets, setPlanets] = useState<PlanetType[]>([]);
 
@@ -36,6 +38,17 @@ export function MainScene() {
             setPlanets(newPlanets);
         }
     }, [db]);
+
+    if (!orbitalProp?.ready) {
+        return (
+            <Html
+                position={[0, 0, 0]}
+                className="flex gap-2 group cursor-pointer bg-background"
+            >
+                <h1 className="text-md">Loading...</h1>
+            </Html>
+        );
+    }
 
     return (
         <>

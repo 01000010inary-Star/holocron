@@ -1,4 +1,5 @@
 import React from "react";
+import { Provider as NiceReactModal } from "@ebay/nice-modal-react";
 import Orrery from "./orrery/Orrery";
 import Filter from "@/filter/Filter.tsx";
 import { DatabaseProvider } from "./contexts/DatabaseContext";
@@ -9,11 +10,13 @@ const App: React.FC = () => {
     return (
         <OrbitalPropagatorProvider>
             <DatabaseProvider>
-                <div>
-                    <Filter />
-                    <Results />
-                    <Orrery />
-                </div>
+                <NiceReactModal>
+                    <div>
+                        <Filter />
+                        <Results />
+                        <Orrery />
+                    </div>
+                </NiceReactModal>
             </DatabaseProvider>
         </OrbitalPropagatorProvider>
     );
