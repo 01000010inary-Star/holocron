@@ -3,6 +3,8 @@ import { OrbitalPropagatorContext } from "@/contexts/OrbitalPropagatorContext";
 import PlanetType from "@/types/PlanetType";
 import { Html } from "@react-three/drei";
 import { Vector3 } from "three";
+import { useModal } from "@ebay/nice-modal-react";
+import { SelectedAsteroidDialog } from "./SelectedPlanetDialog";
 
 interface PlanetProps {
     keplerian_elements: PlanetType;
@@ -11,6 +13,7 @@ interface PlanetProps {
 
 export const Planet: React.FC<PlanetProps> = ({ keplerian_elements, time }) => {
     const orbitalProp = useContext(OrbitalPropagatorContext);
+    const { show, visible } = useModal(SelectedAsteroidDialog)
 
     const [position, setPosition] = useState<Vector3>(new Vector3(0, 0, 0));
 
@@ -72,12 +75,32 @@ export const Planet: React.FC<PlanetProps> = ({ keplerian_elements, time }) => {
         }
     }, [time, orbitalProp?.ready]);
 
+    console.log("keplerian_elements", keplerian_elements);
+
+    function handleOpenElementDetails(){
+        show({
+            name: keplerian_elements.name,
+            eccentricityRad: keplerian_elements.eccentricity_rad,
+            eccentricityRadCentury: keplerian_elements.eccentricity_rad_century,
+            inclinationDeg: keplerian_elements.inclination_deg,
+            inclinationDegCentury: keplerian_elements.inclination_deg_century,
+            longitudeAscNodeDeg: keplerian_elements.longitude_asc_node_deg,
+            longitudeAscNodeDegCentury: keplerian_elements.longitude_asc_node_deg_century,
+            meanLongitudeDeg: keplerian_elements.mean_longitude_deg,
+            meanLongitudeDegCentury: keplerian_elements.mean_longitude_deg_century,
+            semiMajorAxisAu: keplerian_elements.semi_major_axis_au,
+            onViewDetails: () => {},
+        })
+    }
+
     return (
-        <Html position={position} className="flex gap-2 group cursor-pointer">
-            <div className="w-5 h-5 border group-hover:border-white/90 border-white rounded-full" />
-            <span className="text-white group-hover:text-white/90">
-                {keplerian_elements.name}
-            </span>
+        <Html position={position}>
+            <div className="flex gap-2 group cursor-pointer" onClick={handleOpenElementDetails} style={{ opacity: visible ? 1 : 0.8 }}>
+                <div className="w-5 h-5 border group-hover:border-white/90 border-white rounded-full" />
+                <span className="text-white group-hover:text-white/90">
+                    {keplerian_elements.name}
+                </span>
+            </div>
         </Html>
     );
 };

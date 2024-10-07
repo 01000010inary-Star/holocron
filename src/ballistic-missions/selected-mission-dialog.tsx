@@ -1,26 +1,30 @@
-import { X } from "lucide-react";
-import { AlertDialog, Button } from "../../ui";
-import { CuteRocket } from "./cute-rocket";
+import { X } from 'lucide-react';
+import { AlertDialog, Button, DistanceFromEarth } from '@/components';
+import { ThreadLevel } from './thread-level';
+import { ThreadLevels } from './thread-levels';
 
-interface SelectedObjectDialogProps {
+interface SelectedMissionDialogProps {
     name: string;
-    type: string;
     image?: string;
     distance: number;
     diameter: number;
     density: number;
+    speed: number;
+    composition: string;
+    thread: ThreadLevels;
     onViewDetails: () => void;
 }
 
-export function SelectedObjectDialog({
+export function SelectedMissionDialog({
     name,
-    type,
     image,
     diameter,
     distance,
+    composition,
+    speed,
     density,
     onViewDetails,
-}: SelectedObjectDialogProps) {
+}: SelectedMissionDialogProps) {
     return (
         <AlertDialog open>
             <AlertDialog.Content className="space-y-8">
@@ -31,7 +35,7 @@ export function SelectedObjectDialog({
                                 {name}
                             </AlertDialog.Title>
                             <AlertDialog.Description className="text-white">
-                                {type}
+                                (PHA) Potentially Hazardous Asteroid
                             </AlertDialog.Description>
                         </div>
                         <Button variant="ghost" className="p-2 h-10">
@@ -52,19 +56,30 @@ export function SelectedObjectDialog({
                 <div>
                     <ul className="grid grid-cols-1 gap-6">
                         <li>
-                            <span className="text-green-500 flex items-center gap-1">
-                                <CuteRocket />
-                                Distance: {distance}
-                            </span>
+                            <ThreadLevel level="HIGH" />
+                            <div className="w-full h-[1px] mt-2 bg-gradient-to-r from-white/40 to-white/0" />
+                        </li>
+                        <li>
+                            <DistanceFromEarth distance={distance} />
                             <div className="w-full h-[1px] mt-2 bg-gradient-to-r from-white/40 to-white/0" />
                         </li>
                         <ul className="grid grid-cols-2">
                             <li>
-                                <span>Diameter: {diameter} km</span>
+                                <span>Density: {density} km</span>
                                 <div className="w-full h-[1px] mt-2 bg-gradient-to-r from-white/40 to-white/0" />
                             </li>
                             <li>
-                                <span>Density: {density}</span>
+                                <span>Diameter: {diameter}</span>
+                                <div className="w-full h-[1px] mt-2 bg-gradient-to-r from-white/40 to-white/0" />
+                            </li>
+                        </ul>
+                        <ul className="grid grid-cols-2">
+                            <li>
+                                <span>Composition: {composition} km</span>
+                                <div className="w-full h-[1px] mt-2 bg-gradient-to-r from-white/40 to-white/0" />
+                            </li>
+                            <li>
+                                <span>Relative Speed: {speed}</span>
                                 <div className="w-full h-[1px] mt-2 bg-gradient-to-r from-white/40 to-white/0" />
                             </li>
                         </ul>
@@ -72,12 +87,8 @@ export function SelectedObjectDialog({
                 </div>
 
                 <AlertDialog.Footer className="w-full">
-                    <Button
-                        variant="outline"
-                        className="w-full"
-                        onClick={onViewDetails}
-                    >
-                        Full View
+                    <Button className="w-full" onClick={onViewDetails}>
+                        Launch Ballistic Mission
                     </Button>
                 </AlertDialog.Footer>
             </AlertDialog.Content>
