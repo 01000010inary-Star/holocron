@@ -38,9 +38,16 @@ export const Planet: React.FC<PlanetProps> = ({ keplerian_elements, time }) => {
                         true
                     );
                     const coordinates = JSON.parse(cordRes);
-                    const x_cord = coordinates[0].x_orbital_plane;
-                    const y_cord = coordinates[0].y_orbital_plane;
-                    const z_cord = coordinates[0].z_orbital_plane;
+                    // const x_cord = coordinates[0].x_orbital_plane;
+                    // const y_cord = coordinates[0].y_orbital_plane;
+                    // const z_cord = coordinates[0].z_orbital_plane;
+                    // const x_cord = coordinates[0].x_ecliptic_plane;
+                    // const y_cord = coordinates[0].y_ecliptic_plane;
+                    // const z_cord = coordinates[0].z_ecliptic_plane;
+                    const x_cord = coordinates[0].x_equatorial
+                    const y_cord = coordinates[0].y_equatorial;
+                    const z_cord = coordinates[0].z_equatorial;
+
                     setPosition(new Vector3(x_cord, y_cord, z_cord));
                 } catch (_e) {
                     console.error(
