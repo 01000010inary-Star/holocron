@@ -72,16 +72,12 @@ export const Planet: React.FC<PlanetProps> = ({ keplerian_elements, time }) => {
         }
     }, [time, orbitalProp?.ready]);
 
-    return orbitalProp?.ready ? (
+    return (
         <Html position={position} className="flex gap-2 group cursor-pointer">
             <div className="w-5 h-5 border group-hover:border-white/90 border-white rounded-full" />
             <span className="text-white group-hover:text-white/90">
                 {keplerian_elements.name}
             </span>
-        </Html>
-    ) : (
-        <Html position={[0, 0, 0]} className="flex gap-2 group cursor-pointer bg-background">
-            <h1>Loading...</h1>
         </Html>
     );
 };
