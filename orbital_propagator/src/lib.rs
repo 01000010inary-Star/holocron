@@ -53,24 +53,75 @@ pub fn get_orbit_paths(input: &str, is_planet: bool) -> Result<String, JsValue> 
 mod tests {
     use super::*;
 
-    // fn get_test_body() -> InputBody {
-    //
-    //     let mars = InputBody {
-    //         id: 4,
-    //         semi_major_axis: 1.523679,
-    //         eccentricity: 0.0934,
-    //         inclination: 1.850_f64,
-    //         longitude_asc_node: 49.558_f64,
-    //         arg_perihelion: 286.502_f64,
-    //         mean_anomaly: 19.373_f64,
-    //         centuries_past_j2000: 0.0,
-    //     };
-    //
-    //     mars
-    // }
+    fn get_test_body() -> InputBody {
+
+        let earth = InputBody {
+            id: 3,
+            name: "Earth".to_string(),
+            semi_major_axis_au: 1.00000261,
+            semi_major_axis_au_century: 0.00000562,
+            eccentricity_rad: 0.01671123,
+            eccentricity_rad_century: -0.00004392,
+            inclination_deg: -0.00001531,
+            inclination_deg_century: -0.01294668,
+            longitude_asc_node_deg: 0.0,
+            longitude_asc_node_deg_century: 0.0,
+            longitude_perihelion_deg: 102.93768193,
+            longitude_perihelion_deg_century: 0.32327364,
+            mean_longitude_deg: 100.46457166,
+            mean_longitude_deg_century: 35999.37244981,
+            julian_ephemeris_date: 2451545.0,
+            centuries_past_j2000: 0.0,
+            arg_perihelion: 0.0,
+            mean_anomaly: 0.0,
+        };
+
+        earth
+    }
 
     #[test]
-    fn test_input() {
+    fn test_orbit_coordinates() {
+        let earth = get_test_body();
+
+        let is_planet = true;
+
+        let output_body = earth.into_has_cords(is_planet);
+
+        let mut orbit = Orbit::new_flat(&earth, is_planet, Some(1000));
+        orbit.rotate_3D(&earth, is_planet);
+
+        let margin_of_error = 1e-6;
+
+        let mut min_distance = std::f64::MAX;
+
+        for i in 0..orbit.x_cords.len() - 1 {
+            let dx = output_body.x_equatorial - orbit.x_cords[i];
+            let dy = output_body.y_equatorial - orbit.y_cords[i];
+            let dz = output_body.z_equatorial - orbit.z_cords[i];
+            // let dx = output_body.x_orbital_plane - orbit.x_cords[i];
+            // let dy = output_body.y_orbital_plane - orbit.y_cords[i];
+            // let dz = output_body.z_orbital_plane - orbit.z_cords[i];
+            
+            let distance = (dx * dx + dy * dy + dz * dz).sqrt();
+
+            if distance < min_distance {
+                min_distance = distance;
+            }
+        }
+
+        println!("================");
+        println!(
+            "Minimum distance between the body position and the orbit path: {:.10} AU",
+            min_distance
+        );
+        println!("Acceptable margin of error: {:.10}", margin_of_error);
+        println!("================");
+
+        // assert!(
+        //     min_distance <= margin_of_error,
+        //     "====\nThe body position does not fall on the orbit path within the acceptable margin of error.\n===="
+        // );
 
     }
+
 }

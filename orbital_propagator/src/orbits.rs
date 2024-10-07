@@ -20,10 +20,10 @@ pub fn get_sequence(len: u32) -> Vec<f64> {
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Orbit {
-    id: u32,
-    x_cords: Vec<f64>,
-    y_cords: Vec<f64>,
-    z_cords: Vec<f64>
+    pub id: u32,
+    pub x_cords: Vec<f64>,
+    pub y_cords: Vec<f64>,
+    pub z_cords: Vec<f64>
 }
 
 impl Orbit {
@@ -40,7 +40,9 @@ impl Orbit {
         // distance from center to focus
         let distance_center = e * semi_minor;
 
-        let seq = get_sequence(num_points.unwrap_or_else(|| 80));
+        let pts = num_points.unwrap_or_else(|| 80);
+
+        let seq = get_sequence(pts);
 
         let x_cords: Vec<f64> = seq
             .iter().map(|&step| a * step.cos() - distance_center)
@@ -49,7 +51,7 @@ impl Orbit {
             .iter().map(|&step| semi_minor * step.sin())
             .collect();
         // all z cords flat for flat ellipse
-        let z_cords: Vec<f64> = vec![0.0; 80];
+        let z_cords: Vec<f64> = vec![0.0; pts as usize];
 
         Self {
             id: val.id,
