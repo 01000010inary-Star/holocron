@@ -3,7 +3,7 @@ use std::f64;
 use wasm_bindgen::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::{from_str, to_string, Value};
-use std::f64::consts::{E, PI};
+use std::f64::consts::PI;
 use crate::util::*;
 
 // ======== Output Body ========
@@ -39,7 +39,7 @@ impl OutputBody {
 // ======== Input Body ========
 // Body data from JPL API
 // ============================
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct InputBody {
     pub id: u32,
     pub name: String,
@@ -77,79 +77,49 @@ impl InputBody {
     }
 }
 
-pub fn get_cords(val: &InputBody, is_planet: bool, out: &mut OutputBody) -> () {
-
+pub fn get_cords(val: &InputBody, is_planet: bool, out: &mut OutputBody) {
     let updated_terms = modify_data_if_planet(val, is_planet);
 
     // Semi major axis
-    let mut a = updated_terms.semi_major_axis;
-    // Mean anomaly
-    let mut m = updated_terms.mean_anomaly;
-    // arg perihelion
-    let mut w = updated_terms.arg_perihelion;
+    let a = updated_terms.semi_major_axis;
+    // Mean anomaly in radians
+    let mut m = updated_terms.mean_anomaly.to_radians();
+    // Arg of perihelion in radians
+    let w = updated_terms.arg_perihelion.to_radians();
 
-    let e = val.eccentricity_rad;
-    let e_deg = 180.0_f64 / PI * e;
-    // Degrees
-    let I = val.inclination_deg.to_radians();
+    // Update eccentricity if needed
+    let e = updated_terms.eccentricity;
 
-    // Degrees
-    let U = val.longitude_asc_node_deg.to_radians();
-
-    // 3. Normalize mean anomaly into -180deg <= M <= 180deg
-    m = m % 360.0;
-    // let mut m = val.mean_anomaly % 360.0;
-    if m > 180.0 {
-        m = m - 360.0;
-    } else if m < -180.0 {
-        m = m + 360.0;
+    // Normalizing mean anomaly to range [0, 2π) since already in radians
+    m = m % (2.0 * PI);
+    if m < 0.0 {
+        m += 2.0 * PI;
     }
 
-    // 4. Get eccentric anomaly via solving Kepler's equation
-    let eccentric_anomaly_radians = get_eccentric_anomaly(e, e_deg, m).to_radians();
+    // get eccentric anomaly via solving Kepler's equation
+    let eccentric_anomaly = get_eccentric_anomaly(e, m);
 
-    // 4. compute planets heliocentric coordinates in orbital plane
-    let x_cord = a * (eccentric_anomaly_radians.cos() - e);
-    let y_cord = a * (1.0_f64 - (e * e)).sqrt() * eccentric_anomaly_radians.sin();
-    let z_cord = 0.0_f64;
+    // compute heliocentric coordinates in orbital plane
+    let x_cord = a * (eccentric_anomaly.cos() - e);
+    let y_cord = a * (1.0 - e * e).sqrt() * eccentric_anomaly.sin();
+    let z_cord = 0.0;
 
-    // 5. Compute coordinates in J2000 ecliptic plane, w x-axis aligned towards equinox
-    w = w.to_radians();
+    // inclination and longitude of ascending node in radians
+    let i = updated_terms.inclination.to_radians();
+    let omega = updated_terms.longitude_asc_node.to_radians();
 
-    let x_ecl = {
-        let a = ((w.cos() * U.cos()) - (w.sin() * U.sin() * I.cos())) * x_cord;
-        let b = ((-1.0_f64 * w.sin() * U.cos()) - (w.cos() * U.sin() * I.cos())) * y_cord;
-        a + b
-    };
+    // compute coordinates in ecliptic_plane
+    let x_ecl = omega.cos() * x_cord - omega.sin() * i.cos() * y_cord;
+    let y_ecl = omega.sin() * x_cord + omega.cos() * i.cos() * y_cord;
+    let z_ecl = i.sin() * y_cord;
 
-    let y_ecl = {
-        let a = ((w.cos() * U.cos()) + (w.sin() * U.sin() * I.cos())) * x_cord;
-        let b = ((-1.0_f64 * w.sin() * U.sin()) + (w.cos() * U.cos() * I.cos())) * y_cord;
-        a + b
-    };
-
-    let z_ecl = {
-        let a = (w.sin() * I.sin()) * x_cord;
-        let b = (w.cos() * I.sin()) * y_cord;
-        a + b
-    };
-
-    // 6. Equatorial coords in the "ICRF" or "J2000 frame"
+    // Obliquity of the ecliptic in radians
     let obliquity = 23.43928_f64.to_radians();
 
+    // Compute equatorial coordinates
     let x_eq = x_ecl;
-
-    let y_eq = {
-        let a = y_ecl * obliquity.cos();
-        let b = z_ecl * obliquity.sin();
-        a - b
-    };
-
-    let z_eq = {
-        let a = y_ecl * obliquity.sin();
-        let b = z_ecl * obliquity.cos();
-        a + b
-    };
+    let y_eq = y_ecl * obliquity.cos() - z_ecl * obliquity.sin();
+    let z_eq = y_ecl * obliquity.sin() + z_ecl * obliquity.cos();
 
     out.x_orbital_plane = x_cord;
     out.y_orbital_plane = y_cord;
@@ -162,41 +132,24 @@ pub fn get_cords(val: &InputBody, is_planet: bool, out: &mut OutputBody) -> () {
     out.x_equatorial = x_eq;
     out.y_equatorial = y_eq;
     out.z_equatorial = z_eq;
-
 }
 
-
-pub fn get_eccentric_anomaly(e: f64, e_deg: f64, m: f64) -> f64 {
-
+/// e: Eccentricity
+/// m: Mean anomaly (already in radians)
+pub fn get_eccentric_anomaly(e: f64, m: f64) -> f64 {
     // series convergence factor
     let tol = 10.0_f64.powi(-6);
-    let mut delta_E = 0.0_f64;
+    // Basic starting point, convergence speed does not matter since iteration count is low
+    // regardless
+    let mut initial_e = m;
+    let mut delta_e = 1.0_f64;
 
-    // Recommended starting point for faster convergence
-    let mut current_E = m + (e_deg * m.to_radians().sin());
-
-    // `m` is mean anomaly, e is eccentricity
-    let mut count = 0;
-    loop {
-        let current_E_radians = current_E.to_radians();
-        // DELTA M
-        let delta_M = m - (current_E - (e_deg * current_E_radians.sin()));
-        // DELTA E
-        delta_E = delta_M / (1.0_f64 - (e * current_E_radians.cos()));
-        // update current E to next term in series
-        current_E = current_E + delta_E;
-
-        if delta_E.abs() <= tol {
-            break;
-        }
-
-        // Should never even be close
-        if count > 100_000 {
-            break;
-        }
-        count += 1;
+    while delta_e.abs() > tol {
+        let next_e = initial_e - (initial_e - e * initial_e.sin() - m) / (1.0_f64 - e * initial_e.cos());
+        delta_e = next_e - initial_e;
+        initial_e = next_e;
     }
 
-    current_E
+    initial_e
 }
 

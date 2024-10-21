@@ -1,6 +1,6 @@
 #![allow(unused_imports, non_snake_case)]
 use std::f64;
-use std::f64::consts::{E, PI};
+use std::f64::consts::PI;
 
 use wasm_bindgen::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -11,6 +11,7 @@ use objects::*;
 mod orbits;
 use orbits::*;
 mod util;
+use util::*;
 
 #[wasm_bindgen]
 pub fn get_coordinates(input: &str, is_planet: bool) -> Result<String, JsValue> {
@@ -21,7 +22,16 @@ pub fn get_coordinates(input: &str, is_planet: bool) -> Result<String, JsValue> 
     let output_bodies: Vec<OutputBody> = input_bodies
         .into_iter()
         .map(|body| {
-            body.into_has_cords(is_planet)
+            // Using the julian date at time of fn call
+            // TODO: Update logic to use data param (need to pass correct date on JS side)
+            let curr_j_date = get_current_julian_date();
+            let t = (curr_j_date - 2451545.0_f64) / 36525.0_f64;
+            let b = InputBody {
+                centuries_past_j2000: t,
+                ..body.clone()
+            };
+
+            b.into_has_cords(is_planet)
         })
         .collect();
 
@@ -35,19 +45,15 @@ pub fn get_orbit_paths(input: &str, is_planet: bool) -> Result<String, JsValue> 
     let input_bodies: Vec<InputBody> = from_str(input)
         .map_err(|e| JsValue::from_str(&format!("Failure parsing bodies into structured type: {}", e)))?;
 
-    let orbits_with_ids: Vec<Orbit> = input_bodies
-        .into_iter()
+    let orbits_with_ids: Vec<Orbit> = input_bodies.into_iter()
         .map(|body| {
-            let mut flat_orbit = Orbit::new_flat(&body, is_planet, Some(80));
-            flat_orbit.rotate_3D(&body, is_planet);
-            flat_orbit
+            Orbit::new(body, is_planet)
         })
         .collect();
 
     to_string(&orbits_with_ids)
         .map_err(|e| JsValue::from_str(&format!("Err : {}", e)))
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -79,20 +85,26 @@ mod tests {
         earth
     }
 
+
     #[test]
+    /// Test if coordinates returned by `get_coordinates(some_planet)` are
+    /// on the path returned by `get_orbit_path(someplanet)`
     fn test_orbit_coordinates() {
         let earth = get_test_body();
-
         let is_planet = true;
 
+        // --- Getting coordinates for planet (get_coordinates)
         let output_body = earth.into_has_cords(is_planet);
 
-        let mut orbit = Orbit::new_flat(&earth, is_planet, Some(1000));
-        orbit.rotate_3D(&earth, is_planet);
+        // --- Getting orbit path for planet (get_orbit_path)
+        let orbit = Orbit::new(earth, is_planet);
 
-        let margin_of_error = 1e-6;
+        // let margin_of_error = 1e-6;
+        let margin_of_error = 10.0_f64.powi(-6);
 
         let mut min_distance = std::f64::MAX;
+
+        let mut cord_num = 0;
 
         for i in 0..orbit.x_cords.len() - 1 {
             let dx = output_body.x_equatorial - orbit.x_cords[i];
@@ -106,6 +118,7 @@ mod tests {
 
             if distance < min_distance {
                 min_distance = distance;
+                cord_num = i;
             }
         }
 
@@ -115,6 +128,7 @@ mod tests {
             min_distance
         );
         println!("Acceptable margin of error: {:.10}", margin_of_error);
+        println!("Min cord num: {}", cord_num);
         println!("================");
 
         // assert!(

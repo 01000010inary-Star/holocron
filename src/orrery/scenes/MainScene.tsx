@@ -1,9 +1,26 @@
 import { Html, OrbitControls } from "@react-three/drei";
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useMemo } from "react";
 import { DatabaseContext } from "@/contexts/DatabaseContext";
 import PlanetType from "@/types/PlanetType";
 import { Planet } from "../Planet";
 import { OrbitalPropagatorContext } from "@/contexts/OrbitalPropagatorContext";
+import { Vector3, BufferGeometry, SphereGeometry, Color } from "three";
+
+const planetColors = { 
+    Mercury: "#C840F5",   // pink
+    Venus: "#FFC800",     // yellow-orange
+    Earth: "#008000",     // green
+    Mars: "#FF0000",      // red
+    Jupiter: "#D2B48C",   // tan
+    Saturn: "#FFFF00",    // yellow
+    Uranus: "#7C40FF",    // purple
+    Neptune: "#00BBFF"    // blue
+};
+
+function getPlanetColor(planetName: string): Color {
+    const colorHex = planetColors[planetName as keyof typeof planetColors];
+    return new Color(colorHex || "#FF0000"); // Default to white if planet not found
+}
 
 export function MainScene() {
     const databaseConnection = useContext(DatabaseContext);
@@ -37,6 +54,73 @@ export function MainScene() {
         }
     }, [databaseConnection?.db]);
 
+
+    const orbitPaths = useMemo(() => {
+
+        if (!orbitalProp || !orbitalProp.ready || !orbitalProp.get_orbit_paths) {
+            return null;
+        }
+
+        try {
+            const paths: React.ReactElement[] = [];
+
+            planets.forEach((planet) => {
+                // has to be in array for wasm fn
+                const inputBody = {
+                    // ...keplerian_elements,
+                    ...planet,
+                    julian_ephemeris_date: 0.0,
+                    centuries_past_j2000: 0.0,
+                    arg_perihelion: 0.0,
+                    mean_anomaly: 0.0,
+                };
+                const input = [inputBody];
+
+                var orbitPathRes = "{}";
+
+                if (orbitalProp.get_orbit_paths) {
+                    // stringified data, boolean for is_planet
+                    orbitPathRes = orbitalProp.get_orbit_paths(
+                        JSON.stringify(input),
+                        true
+                    );
+                }
+                const orbitPath = JSON.parse(orbitPathRes);
+
+                const x_cords = orbitPath[0].x_cords;
+                const y_cords = orbitPath[0].y_cords;
+                const z_cords = orbitPath[0].z_cords;
+
+                const points = x_cords.map((x: any, index: any) => (
+                    new Vector3(x, y_cords[index], z_cords[index])
+                ));
+
+
+                // colored line orbit path
+                const lineGeometry = new BufferGeometry().setFromPoints(points);
+                paths.push(
+                    <line key={`orbit-${planet.id}`}>
+                        <primitive attach="geometry" object={lineGeometry} />
+                        <lineBasicMaterial 
+                            // color="white"
+                            color={getPlanetColor(planet.name)}
+                            transparent={true}
+                            opacity={0.2}
+                        />
+                    </line>
+                );
+
+            });
+
+            return paths;
+
+        } catch(e) {
+            console.error("Failure generating orbit paths");
+            return null;
+        }
+
+    }, [orbitalProp?.ready, JSON.stringify(planets)]);
+
     if (!orbitalProp?.ready) {
         return (
             <Html
@@ -50,7 +134,7 @@ export function MainScene() {
 
     return (
         <>
-            <ambientLight intensity={2} />
+            <ambientLight intensity={10} />
             <Html
                 position={[0, 0, 0]}
                 className="flex gap-2 group cursor-pointer"
@@ -63,6 +147,7 @@ export function MainScene() {
             {planets.map((planet) => (
                 <Planet key={planet.id} keplerian_elements={planet} time={0} />
             ))}
+            {orbitPaths}
             <OrbitControls />
         </>
     );
