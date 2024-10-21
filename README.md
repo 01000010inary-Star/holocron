@@ -1,7 +1,7 @@
 # Holocron
 
 ![slide_1](https://github.com/user-attachments/assets/00422c0e-d49b-421b-bbfb-a7aed1b45a4f)
-![slide_2](https://github.com/user-attachments/assets/09d9026d-cee2-494f-af3b-dabc9586394f)
+![slide2](https://github.com/user-attachments/assets/f63f9662-dd11-4f56-8823-66403822e266)
 ![slide_3](https://github.com/user-attachments/assets/d5b73b88-e5ce-4fa2-ba9e-c8b0765d830e)
 ![slide_4](https://github.com/user-attachments/assets/78dbd9ad-ce4b-4f66-a6a1-807255b21240)
 
