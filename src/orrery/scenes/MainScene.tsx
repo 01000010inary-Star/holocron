@@ -4,7 +4,23 @@ import { DatabaseContext } from "@/contexts/DatabaseContext";
 import PlanetType from "@/types/PlanetType";
 import { Planet } from "../Planet";
 import { OrbitalPropagatorContext } from "@/contexts/OrbitalPropagatorContext";
-import { Vector3, BufferGeometry, SphereGeometry } from "three";
+import { Vector3, BufferGeometry, SphereGeometry, Color } from "three";
+
+const planetColors = { 
+    Mercury: "#C840F5",   // pink
+    Venus: "#FFC800",     // yellow-orange
+    Earth: "#008000",     // green
+    Mars: "#FF0000",      // red
+    Jupiter: "#D2B48C",   // tan
+    Saturn: "#FFFF00",    // yellow
+    Uranus: "#7C40FF",    // purple
+    Neptune: "#00BBFF"    // blue
+};
+
+function getPlanetColor(planetName: string): Color {
+    const colorHex = planetColors[planetName as keyof typeof planetColors];
+    return new Color(colorHex || "#FF0000"); // Default to white if planet not found
+}
 
 export function MainScene() {
     const databaseConnection = useContext(DatabaseContext);
@@ -80,40 +96,20 @@ export function MainScene() {
                 ));
 
 
-                // White line orbit path
+                // colored line orbit path
                 const lineGeometry = new BufferGeometry().setFromPoints(points);
                 paths.push(
                     <line key={`orbit-${planet.id}`}>
                         <primitive attach="geometry" object={lineGeometry} />
-                        <lineBasicMaterial color="white" />
+                        <lineBasicMaterial 
+                            // color="white"
+                            color={getPlanetColor(planet.name)}
+                            transparent={true}
+                            opacity={0.2}
+                        />
                     </line>
                 );
 
-                // Transparent sphere around orbit path
-                // avg position for center of sphere
-                const center = new Vector3(
-                    x_cords.reduce((acc: any, val: any) => acc + val, 0) / x_cords.length,
-                    y_cords.reduce((acc: any, val: any) => acc + val, 0) / y_cords.length,
-                    z_cords.reduce((acc: any, val: any) => acc + val, 0) / z_cords.length
-                );
-
-                // radius of sphere (roughly average distance from center to each point)
-                const radius = points.reduce((acc: any, point: any) => {
-                    return acc + center.distanceTo(point);
-                }, 0) / points.length;
-
-                const sphereGeometry = new SphereGeometry(radius, 32, 32);
-                paths.push(
-                    <mesh key={`sphere-${planet.id}`} position={center}>
-                        <primitive attach="geometry" object={sphereGeometry} />
-                        <meshStandardMaterial 
-                            color="blue" 
-                            transparent={true} 
-                            opacity={0.1} 
-                            wireframe={true}
-                        />
-                    </mesh>
-                );
             });
 
             return paths;
@@ -138,7 +134,7 @@ export function MainScene() {
 
     return (
         <>
-            <ambientLight intensity={2} />
+            <ambientLight intensity={10} />
             <Html
                 position={[0, 0, 0]}
                 className="flex gap-2 group cursor-pointer"

@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { OrbitalPropagatorContext } from "@/contexts/OrbitalPropagatorContext";
 import PlanetType from "@/types/PlanetType";
 import { Html } from "@react-three/drei";
-import { Vector3 } from "three";
+import { Vector3, Color } from "three";
 import { useModal } from "@ebay/nice-modal-react";
 import { SelectedAsteroidDialog } from "./SelectedPlanetDialog";
 
@@ -10,6 +10,45 @@ interface PlanetProps {
     keplerian_elements: PlanetType;
     time: number;
 }
+
+interface SphereProps {
+    position: Vector3;
+    planetId: string;
+    planetName: string;
+}
+
+const planetColors = { 
+    Mercury: "#C840F5",   // pink
+    Venus: "#FFC800",     // yellow-orange
+    Earth: "#008000",     // green
+    Mars: "#FF0000",      // red
+    Jupiter: "#D2B48C",   // tan
+    Saturn: "#FFFF00",    // yellow
+    Uranus: "#7C40FF",    // purple
+    Neptune: "#00BBFF"    // blue
+};
+
+function getPlanetColor(planetName: string): Color {
+    const colorHex = planetColors[planetName as keyof typeof planetColors];
+    return new Color(colorHex || "#FF0000"); // Default to white if planet not found
+}
+
+const PlanetSphere: React.FC<SphereProps> = ({ position, planetId, planetName }) => {
+    const color = getPlanetColor(planetName);
+  return (
+    <mesh key={`sphere-${planetId}`} position={position}>
+        {/* [Radius, Width segments, Height segments] | more segements = smoother */}
+      <sphereGeometry args={[0.05, 32, 32]} />
+      <meshStandardMaterial 
+        // color="#00FFD0"
+        color={color}
+        transparent={true} 
+        opacity={0.5} 
+        wireframe={true}
+      />
+    </mesh>
+  );
+};
 
 export const Planet: React.FC<PlanetProps> = ({ keplerian_elements, time }) => {
     const orbitalProp = useContext(OrbitalPropagatorContext);
@@ -44,7 +83,7 @@ export const Planet: React.FC<PlanetProps> = ({ keplerian_elements, time }) => {
                     // const x_cord = coordinates[0].x_ecliptic_plane;
                     // const y_cord = coordinates[0].y_ecliptic_plane;
                     // const z_cord = coordinates[0].z_ecliptic_plane;
-                    const x_cord = coordinates[0].x_equatorial
+                    const x_cord = coordinates[0].x_equatorial;
                     const y_cord = coordinates[0].y_equatorial;
                     const z_cord = coordinates[0].z_equatorial;
 
@@ -101,13 +140,16 @@ export const Planet: React.FC<PlanetProps> = ({ keplerian_elements, time }) => {
     }
 
     return (
+        <>
         <Html position={position}>
-            <div className="flex gap-2 group cursor-pointer" onClick={handleOpenElementDetails} style={{ opacity: visible ? 1 : 0.8 }}>
-                <div className="w-5 h-5 border group-hover:border-white/90 border-white rounded-full" />
-                <span className="text-white group-hover:text-white/90">
+            <div className="flex gappp-2 px-2 justify-end items-end group cursor-pointer" onClick={handleOpenElementDetails} style={{ opacity: visible ? 1 : 0.8 }}>
+                    { /* <div className="w-5 h-5 border group-hover:border-white/90 border-white rounded-full" /> */}
+                <span className="text-right px-4 text-white group-hover:text-white/90">
                     {keplerian_elements.name}
                 </span>
             </div>
         </Html>
+        <PlanetSphere position={position} planetId={`${keplerian_elements.id}`} planetName={keplerian_elements.name} />
+        </>
     );
 };
