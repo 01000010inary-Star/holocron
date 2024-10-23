@@ -1,11 +1,59 @@
 import { X } from "lucide-react";
+import { useRef } from 'react';
 import { create, useModal } from "@ebay/nice-modal-react";
 import { AlertDialog, Button } from "@/components/ui";
 import { CuteRocket } from "@/components/cute-rocket";
+import { Canvas, useFrame, useLoader } from '@react-three/fiber';
+import { Vector3, Color, Mesh, TextureLoader } from "three";
+import PlanetType from "@/types/PlanetType.ts";
+
+interface ModalPlanetProps {
+    position: Vector3;
+    planetId: string;
+    planetName: string;
+    planetColor: Color;
+    planetTextureUrl: string | null;
+    planetRadius?: number | null;
+}
+
+const ModalPlanetSphere: React.FC<ModalPlanetProps> = ({
+    position,
+    planetId,
+    planetName,
+    planetColor,
+    planetTextureUrl,
+    planetRadius,
+}) => {
+    const texture = planetTextureUrl ? useLoader(TextureLoader, planetTextureUrl) : null;
+    const planetRef = useRef<Mesh>(null);
+
+    useFrame(() => {
+        if (planetRef.current) {
+            planetRef.current.rotation.y += 0.001;
+        }
+    });
+
+    return (
+        <mesh ref={planetRef} key={`sphere-${planetId}`} position={position}>
+            {/* [Radius, Width segments, Height segments] | more segements = smoother */}
+            <sphereGeometry args={[planetRadius || 0.05, 128, 128]} />
+            <meshStandardMaterial 
+                map={texture || undefined}
+                color={texture ? undefined : planetColor}
+                transparent={true} 
+                opacity={0.8} 
+                wireframe={texture ? false : true}
+            />
+        </mesh>
+    );
+};
+
 
 interface SelectedAsteroidDialogProps {
     name: string;
-    image?: string;
+    image?: string | null;
+    planetColor?: Color;
+    keplerian_elements?: PlanetType;
 
     eccentricityRad: number;
     eccentricityRadCentury: number;
@@ -27,6 +75,8 @@ export const SelectedAsteroidDialog = create<SelectedAsteroidDialogProps>(
     ({
         name,
         image,
+        planetColor,
+        keplerian_elements,
         eccentricityRad,
         eccentricityRadCentury,
         inclinationDeg,
@@ -66,17 +116,28 @@ export const SelectedAsteroidDialog = create<SelectedAsteroidDialogProps>(
                                 </Button>
                             </div>
                         </AlertDialog.Header>
+                        
+                        <div className="flex flex-row space-x-4">
 
                         {image && (
-                            <img
-                                src={image}
-                                width={252}
-                                className="mx-auto"
-                                alt={`${name} image`}
-                            />
+                            <div className="bg-transparent relative h-60 w-60">
+                                <Canvas 
+                                    className="bg-transparent" >
+                                    <ambientLight intensity={3} />
+                                    <ModalPlanetSphere 
+                                        // Center
+                                        position={new Vector3(0,0,0)}
+                                        planetId={keplerian_elements?.id ? `${keplerian_elements.id}` : "1"}
+                                        planetName={name}
+                                        planetColor={planetColor || new Color("#FF0000")}
+                                        planetTextureUrl={image || null}
+                                        planetRadius={3}
+                                    />
+                                </Canvas>
+                            </div>
                         )}
-
-                        <div>
+                        
+                        <div className="text-xs">
                             <ul className="grid grid-cols-1 gap-6">
                                 <li>
                                     <span>
@@ -147,6 +208,7 @@ export const SelectedAsteroidDialog = create<SelectedAsteroidDialogProps>(
                                     </li>
                                 </ul>
                             </ul>
+                        </div>
                         </div>
 
                         {/* <AlertDialog.Footer className="w-full">
