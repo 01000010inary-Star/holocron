@@ -5,21 +5,42 @@ import PlanetType from "@/types/PlanetType";
 import { Planet } from "../Planet";
 import { OrbitalPropagatorContext } from "@/contexts/OrbitalPropagatorContext";
 import { Vector3, BufferGeometry, SphereGeometry, Color } from "three";
+import MERCURY from "../../../public/textures/Mercury.jpg";
+import VENUS from "../../../public/textures/Venus.jpg";
+import EARTH from "../../../public/textures/Earth.jpg";
+import MARS from "../../../public/textures/Mars.jpg";
+import JUPITER from "../../../public/textures/Jupiter.jpg";
+import SATURN from "../../../public/textures/Saturn.jpg";
+import URANUS from "../../../public/textures/Uranus.jpg";
+import NEPTUNE from "../../../public/textures/Neptune.jpg";
 
-const planetColors = { 
-    Mercury: "#C840F5",   // pink
-    Venus: "#FFC800",     // yellow-orange
-    Earth: "#008000",     // green
-    Mars: "#FF0000",      // red
-    Jupiter: "#D2B48C",   // tan
-    Saturn: "#FFFF00",    // yellow
-    Uranus: "#7C40FF",    // purple
-    Neptune: "#00BBFF"    // blue
+const planetData = {
+  Mercury: { color: "#C840F5", texture: MERCURY },
+  Venus: { color: "#FFC800", texture: VENUS },
+  Earth: { color: "#008000", texture: EARTH },
+  Mars: { color: "#FF0000", texture: MARS },
+  Jupiter: { color: "#D2B48C", texture: JUPITER },
+  Saturn: { color: "#FFFF00", texture: SATURN },
+  Uranus: { color: "#7C40FF", texture: URANUS },
+  Neptune: { color: "#00BBFF", texture: NEPTUNE },
 };
 
-function getPlanetColor(planetName: string): Color {
-    const colorHex = planetColors[planetName as keyof typeof planetColors];
-    return new Color(colorHex || "#FF0000"); // Default to white if planet not found
+const getPlanetStyles = (planetName: string) => {
+    const planetInfo = planetData[planetName as keyof typeof planetData];
+
+    // Default values if planet not found
+    if (!planetInfo) {
+        return {
+            // Default grey & no texture
+            color: new Color("#D6D6D6"),
+            texture: null
+        };
+    }
+
+    return {
+        color: new Color(planetInfo.color),
+        texture: planetInfo.texture,
+    };
 }
 
 export function MainScene() {
@@ -103,7 +124,7 @@ export function MainScene() {
                         <primitive attach="geometry" object={lineGeometry} />
                         <lineBasicMaterial 
                             // color="white"
-                            color={getPlanetColor(planet.name)}
+                            color={getPlanetStyles(planet.name).color}
                             transparent={true}
                             opacity={0.2}
                         />
@@ -144,9 +165,12 @@ export function MainScene() {
                     Sun
                 </span>
             </Html>
-            {planets.map((planet) => (
-                <Planet key={planet.id} keplerian_elements={planet} time={0} />
-            ))}
+            {planets.map((planet) => {
+                const {color, texture} = getPlanetStyles(planet.name);
+                return (
+                    <Planet key={planet.id} keplerian_elements={planet} time={0} planetColor={color} planetTextureUrl={texture} />
+                )
+            })}
             {orbitPaths}
             <OrbitControls />
         </>

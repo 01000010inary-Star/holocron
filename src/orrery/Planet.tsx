@@ -2,55 +2,62 @@ import { useContext, useEffect, useState } from "react";
 import { OrbitalPropagatorContext } from "@/contexts/OrbitalPropagatorContext";
 import PlanetType from "@/types/PlanetType";
 import { Html } from "@react-three/drei";
-import { Vector3, Color } from "three";
+import { Vector3, Color, TextureLoader } from "three";
 import { useModal } from "@ebay/nice-modal-react";
 import { SelectedAsteroidDialog } from "./SelectedPlanetDialog";
+import { useLoader } from "@react-three/fiber";
 
 interface PlanetProps {
     keplerian_elements: PlanetType;
     time: number;
+    planetColor: Color;
+    planetTextureUrl: string | null;
 }
 
 interface SphereProps {
     position: Vector3;
     planetId: string;
     planetName: string;
+    planetColor: Color;
+    planetTextureUrl: string | null;
+    planetRadius?: number | null;
 }
 
-const planetColors = { 
-    Mercury: "#C840F5",   // pink
-    Venus: "#FFC800",     // yellow-orange
-    Earth: "#008000",     // green
-    Mars: "#FF0000",      // red
-    Jupiter: "#D2B48C",   // tan
-    Saturn: "#FFFF00",    // yellow
-    Uranus: "#7C40FF",    // purple
-    Neptune: "#00BBFF"    // blue
+export const PlanetSphere: React.FC<SphereProps> = ({
+    position,
+    planetId,
+    planetName,
+    planetColor,
+    planetTextureUrl,
+    planetRadius,
+}) => {
+    const texture = planetTextureUrl ? useLoader(TextureLoader, planetTextureUrl) : null;
+    return (
+        <mesh key={`sphere-${planetId}`} position={position}>
+            {/* [Radius, Width segments, Height segments] | more segements = smoother */}
+            <sphereGeometry args={[planetRadius || 0.05, 32, 32]} />
+            <meshStandardMaterial 
+                map={texture || undefined}
+                color={texture ? undefined : planetColor}
+                transparent={true} 
+                opacity={0.8} 
+                wireframe={texture ? false : true}
+                // color="#00FFD0"
+                // color={color}
+                // transparent={true} 
+                // opacity={0.5} 
+                // wireframe={true}
+            />
+        </mesh>
+    );
 };
 
-function getPlanetColor(planetName: string): Color {
-    const colorHex = planetColors[planetName as keyof typeof planetColors];
-    return new Color(colorHex || "#FF0000"); // Default to white if planet not found
-}
-
-const PlanetSphere: React.FC<SphereProps> = ({ position, planetId, planetName }) => {
-    const color = getPlanetColor(planetName);
-  return (
-    <mesh key={`sphere-${planetId}`} position={position}>
-        {/* [Radius, Width segments, Height segments] | more segements = smoother */}
-      <sphereGeometry args={[0.05, 32, 32]} />
-      <meshStandardMaterial 
-        // color="#00FFD0"
-        color={color}
-        transparent={true} 
-        opacity={0.5} 
-        wireframe={true}
-      />
-    </mesh>
-  );
-};
-
-export const Planet: React.FC<PlanetProps> = ({ keplerian_elements, time }) => {
+export const Planet: React.FC<PlanetProps> = ({
+    keplerian_elements,
+    time,
+    planetColor,
+    planetTextureUrl
+}) => {
     const orbitalProp = useContext(OrbitalPropagatorContext);
     const { show, visible } = useModal(SelectedAsteroidDialog)
 
@@ -126,6 +133,9 @@ export const Planet: React.FC<PlanetProps> = ({ keplerian_elements, time }) => {
     function handleOpenElementDetails(){
         show({
             name: keplerian_elements.name,
+            image: planetTextureUrl,
+            planetColor: planetColor,
+            keplerian_elements: keplerian_elements,
             eccentricityRad: keplerian_elements.eccentricity_rad,
             eccentricityRadCentury: keplerian_elements.eccentricity_rad_century,
             inclinationDeg: keplerian_elements.inclination_deg,
@@ -149,7 +159,7 @@ export const Planet: React.FC<PlanetProps> = ({ keplerian_elements, time }) => {
                 </span>
             </div>
         </Html>
-        <PlanetSphere position={position} planetId={`${keplerian_elements.id}`} planetName={keplerian_elements.name} />
+        <PlanetSphere position={position} planetId={`${keplerian_elements.id}`} planetName={keplerian_elements.name} planetColor={planetColor} planetTextureUrl={planetTextureUrl} />
         </>
     );
 };
